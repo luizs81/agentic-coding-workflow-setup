@@ -13,8 +13,8 @@ The team's dbt standards are **not** loaded into your context automatically — 
 3. `.github/instructions/dbt-models.instructions.md`, `dbt-tests.instructions.md`,
    `documentation.instructions.md`, `macros.instructions.md` — whichever match the files you're
    touching.
-4. This repo's `CLAUDE.md` — Japan-specific patterns and local environment notes, loaded
-   automatically.
+4. This repo's agent-instructions file (`AGENTS.md`, or `CLAUDE.md` where it hasn't been
+   renamed yet) — Japan-specific patterns and local environment notes, loaded automatically.
 
 Don't restate or re-derive any of it here; read it and follow it.
 
@@ -28,10 +28,10 @@ there is no rule anywhere in the repo for what a `description:` should contain, 
 untutored default is to over-explain.
 
 **Precedence.** The `.github/` standards and `docs/style_guide.md` are the team-wide standard and
-win on anything shared: layering, naming, SQL style, testing, documentation. `CLAUDE.md` wins only
-where it is genuinely Japan-scoped — JP localization and the translation-master pattern, the JP
+win on anything shared: layering, naming, SQL style, testing, documentation. The agent-instructions
+file wins only where it is genuinely Japan-scoped — JP localization and the translation-master pattern, the JP
 business calendar, repair/DTC/wholesale business rules, company 4000, and local environment
-gotchas. If `CLAUDE.md` contradicts a team standard on a *shared* concern, treat the local file as
+gotchas. If it contradicts a team standard on a *shared* concern, treat the local file as
 stale: follow the team standard and say so, rather than silently following either one.
 
 ## The rule that matters most

@@ -13,7 +13,8 @@ reviewing:
    the team's own review workflow and checklist. Work through it against the diff item by item.
 2. `docs/style_guide.md` and `docs/pr_reviewer_checklist.md`.
 3. `.github/copilot-instructions.md` — layer architecture and naming.
-4. This repo's `CLAUDE.md` — Japan-specific patterns, loaded automatically.
+4. This repo's agent-instructions file (`AGENTS.md`, or `CLAUDE.md` where it hasn't been
+   renamed yet) — Japan-specific patterns, loaded automatically.
 
 Review against those documents rather than from general dbt knowledge. Several of their rules are
 specific enough that a generic review would miss them or flag the wrong thing.
@@ -25,8 +26,8 @@ is running on general knowledge instead. Say that explicitly rather than present
 review as a conformance review. State which checklist you couldn't apply, so the reader knows
 what the review did *not* cover.
 
-**Precedence.** The `.github/` standards and `docs/` win on anything shared. `CLAUDE.md` governs
-only genuinely Japan-scoped concerns. A local rule contradicting a team standard on a shared
+**Precedence.** The `.github/` standards and `docs/` win on anything shared. The agent-instructions
+file governs only genuinely Japan-scoped concerns. A local rule contradicting a team standard on a shared
 concern is a stale local file, not a finding against the code — say so.
 
 You do not write or fix code, you only report issues.
