@@ -99,6 +99,12 @@ against them before reporting done.
 - **Make sure an error and its log line identify the same thing.** If a diagnostic message
   and the object it describes carry different row/record identifiers, whoever reads the
   output has two incompatible answers to "which one failed?"
+- **Return what the operation decided, not just what it produced.** If code applies a rule
+  that discards, merges, filters, or picks a winner, the loser and the reason are results
+  too. Drop them and the next task has to re-implement the same rule to recover them, which
+  puts one rule in two places, free to drift. Check the backlog for a later task that
+  reports on, audits, or reconciles what this one does; if there is one, its input is part
+  of this task's output.
 
 ## After finishing
 

@@ -25,6 +25,15 @@ applicable ADR:
 - **Sort keys and column names coming from a client are allowlisted**, never passed
   through to SQL or an OData query. An ordering parameter is an injection vector that
   parameterized queries do not protect, because the column name isn't a parameter.
+- **Every date, time, and number formatted or parsed for a machine-readable output pins
+  `CultureInfo.InvariantCulture`** — file contents, filenames, export columns, API payloads,
+  keys. Only text a human reads uses the ambient culture. This is not about separators. A
+  culture carries a *calendar*: under `th-TH` (Buddhist) or `ar-SA` (Hijri), `yy` for 2026
+  formats as `69`, not `26`. A wrong year on a contract column is silent and total, and the
+  host culture that triggers it is a deployment setting nobody reviews.
+- **A culture test must use a culture with a different calendar, not just different
+  separators.** `de-DE` and `fr-FR` prove nothing about `yy`/`yyyy` — they pass with the
+  calendar bug fully present. Use `th-TH` or `ar-SA`.
 - No secrets in code, in config committed to git, or in logs. No hard-coded user-facing
   strings — see the applicable ADR for where they belong instead.
 - Follow existing project conventions (naming, DI patterns, folder structure) over
@@ -51,10 +60,16 @@ of fact about behaviour. Treat it with the same weight as the signature it sits 
 
 The testing approach — framework, substitution strategy, which layers get their own test
 project, what minimum coverage means — is set by the applicable ADR, because it differs
-between the two stacks. Two rules hold everywhere:
+between the two stacks. These rules hold everywhere:
 
 - **New logic ships with tests in the same commit.** Tests assert behaviour, not "runs
   without throwing."
+- **A test must fail against the implementation you're worried about.** Before writing the
+  assertion, name the wrong implementation it's meant to catch, then check the test would
+  actually distinguish the two. A composite key needs each component varied independently,
+  or an implementation keyed on one of them passes. A field deliberately *excluded* from a
+  key needs a test that varies it and asserts nothing changed, or nothing pins the exclusion
+  and the next refactor absorbs it.
 - **Do not assert against a substitute where the real thing is what's under test.** An
   in-memory database provider does not enforce the constraints a real engine does, so a
   test using one proves nothing about them.
