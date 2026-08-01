@@ -30,6 +30,23 @@ applicable ADR:
 - Follow existing project conventions (naming, DI patterns, folder structure) over
   introducing new ones. Check an existing file in the same layer before writing a new one.
 
+## Doc comments are contract, not narration
+
+An XML doc comment on a type or interface is read by the next implementer as a statement
+of fact about behaviour. Treat it with the same weight as the signature it sits on.
+
+- **Before implementing against an existing interface, re-read its doc comment and honour
+  it.** If the implementation must deviate, change the interface's comment in the same
+  commit. (Not: implement the deviation and leave the comment. A contract that says errors
+  are captured as data, paired with an implementation that throws, is a defect in both.)
+- **Any change to behaviour an existing type's doc comment describes updates that comment
+  in the same commit.** This is the rule already applied to `docs/` files, extended to the
+  comments on the types themselves — those go stale silently, since nothing compiles
+  against them.
+- This bites hardest when interfaces and their implementations land in *different* tasks.
+  The gap between the two is exactly where the drift happens, so the re-read is not
+  optional there.
+
 ## Testing
 
 The testing approach — framework, substitution strategy, which layers get their own test
@@ -65,3 +82,4 @@ Stop and report back — do not guess, do not proceed — if:
 - If the project has a resource-key parity convention (e.g. JA/EN keys), both are added.
 - Any deviation from the applicable ADR is justified in a code comment at the point of
   deviation **and** recorded in the project's `AGENTS.md`.
+- Every doc comment describing behaviour you changed is updated in the same commit.

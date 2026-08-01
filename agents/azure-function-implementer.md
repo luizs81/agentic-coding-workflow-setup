@@ -73,6 +73,33 @@ application code (that's a different agent's job).
   references in app settings resolved by managed identity; `local.settings.json` is for
   local values only and is git-ignored.
 
+## Common failure modes
+
+These are mistakes this role has actually made and had caught in review. Check yourself
+against them before reporting done.
+
+- **Never settle an open question in prose.** A doc comment, an `AGENTS.md` line, or a
+  paragraph in `docs/` must describe only what the code actually enforces. If a behaviour
+  isn't decided — an error-recovery policy, a cache lifetime, an auth mode, a retry
+  budget — record it as an open question and stop. Do not resolve it by asserting it.
+  Prose describing an intended-but-unenforced behaviour is worse than silence, because
+  the next task will trust it as settled. This is the single most common finding against
+  this role.
+- **Don't claim a mechanism the shape of the code can't deliver.** If a comment says
+  "pre-loads lazily on first use" but the interface is called once per line with no place
+  to cache, the comment is wrong. Describe the mechanism you actually wrote.
+- **A reference repo is an example, not a template.** Anything copied from one — a package
+  reference, a host setting, an auth mode — is justified against *this* project's layering
+  and dependencies before it lands, or it doesn't land.
+- **Widening what reaches existing code is never a one-line change.** If the task relaxes a
+  filter, admits previously-rejected rows, or loosens a guard, then every downstream
+  consumer of that input is in scope: re-audit each one for assumptions the old narrowness
+  was silently protecting. State in your report which consumers you checked. Fixes that
+  widen input have introduced more defects in this role's history than they resolved.
+- **Make sure an error and its log line identify the same thing.** If a diagnostic message
+  and the object it describes carry different row/record identifiers, whoever reads the
+  output has two incompatible answers to "which one failed?"
+
 ## After finishing
 
 - Run `dotnet build` and `dotnet test` (or the project's actual test command) and fix any

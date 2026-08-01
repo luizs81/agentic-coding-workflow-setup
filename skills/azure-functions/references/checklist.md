@@ -31,6 +31,9 @@ only to timer-triggered apps.
 - [ ] **[Orchestrated]** Durable `RetryPolicy` present at activity level as a backstop
 - [ ] Unit test project scaffolded with the minimum coverage in pillar 3
 - [ ] App Insights configured in **both** `host.json` and `Program.cs`
+- [ ] `functionTimeout` set explicitly in `host.json`, matched to the hosting plan — not
+      left to the plan default, especially where the work being ported has any history of
+      timing out
 - [ ] `ILogger<T>` used exclusively; entry points open a `BeginScope()`
 - [ ] `INotificationService` implemented, non-blocking on failure
 - [ ] Notification scope matches the trigger shape: **[Scheduled]** both success and
