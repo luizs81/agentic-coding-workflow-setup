@@ -150,6 +150,13 @@ Retry count is the one value expected to be tuned per app — lower it when an a
 expensive or slow (browser automation, large report generation) so a failing run
 surfaces quickly instead of multiplying cost. Record the reason at the call site.
 
+**Filter the retry to transient faults — don't retry on the base `Exception` type.**
+Give the retry strategy a `ShouldHandle` predicate: retry timeouts, connection resets,
+throttling, and 429/503s; let auth/permission failures (401/403, expired credentials),
+missing objects, and malformed requests throw on the first attempt — a second attempt
+can't fix those, it just delays the failure and burns the backoff budget. The exact
+exception types differ per SDK; pick them at the call site and comment why.
+
 **[Orchestrated]** The Durable `RetryPolicy` stays at the activity level as a coarse
 backstop; it does not replace Polly. Polly handles individual SDK call failures,
 Durable handles activity-level crashes.

@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Accepted |
 | **Date** | April 2026 |
-| **Last revised** | 2026-08-01 |
+| **Last revised** | 2026-08-02 |
 | **Deciders** | Engineering team |
 | **Scope** | All Azure Function applications owned by the team |
 | **Supersedes** | N/A (first formal ADR for Azure Functions) |
@@ -207,6 +207,26 @@ Retry count is the one value expected to be tuned per application. Lower it when
 attempt is expensive or slow (browser automation, large report generation) so a
 failing run surfaces quickly instead of multiplying cost. Record the reason at the
 call site.
+
+**Retry only faults that a second attempt can plausibly fix.** The retry strategy must
+carry a `ShouldHandle` predicate — an unfiltered retry, which Polly applies to any
+exception by default, treats "the network blipped" and "the credentials are wrong"
+identically, spending the full backoff budget on a failure a later attempt cannot fix
+any better than the first. Split failures into two classes:
+
+- **Transient — retry.** The call failed for a reason that plausibly resolves on its
+  own: timeouts, connection resets, throttling, a 429/503, a momentary DNS failure.
+- **Non-transient — fail fast.** The call failed for a reason a retry cannot fix
+  because it needs a human: expired or invalid credentials, permission/authorization
+  errors (401/403), a missing object, a malformed request, a schema mismatch. Let these
+  throw on the first attempt.
+
+The specific exception types or error codes in each bucket differ per SDK (Snowflake,
+SQL Server, Blob Storage, and an HTTP client each surface auth/permission failures
+differently) — pick them at the call site and record the mapping in a code comment,
+rather than retrying on the base `Exception` type. When a new failure mode shows up in
+production that isn't yet classified, treat it as transient until proven otherwise (the
+safe default), but add it to the predicate rather than leaving the gap for next time.
 
 **The retried delegate must be side-effect-free.** Polly re-invokes the delegate passed
 to `ExecuteAsync` from the beginning, but it cannot undo what a failed attempt already

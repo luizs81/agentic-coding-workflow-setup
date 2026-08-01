@@ -23,6 +23,19 @@ The 100% failure ratio is deliberate: these apps make few enough calls per run t
 partial ratio would trip on normal noise. It opens only when a dependency is
 unambiguously down.
 
+## Why the retry predicate matters, not just the count
+
+An unfiltered retry — the Polly default — treats every exception the same, which means
+it treats "the connection blipped" and "the login failed" the same. The second case
+isn't going to succeed on attempt two or three; the credentials don't fix themselves
+between retries. All an unfiltered retry buys you there is roughly 14 seconds of added
+latency (2s + 4s + 8s at the default backoff) and three warning-level log lines before
+the failure surfaces anyway — plus, under load, three times the calls against a
+dependency that's already rejecting them. Scoping the retry to faults that plausibly
+resolve on their own (timeouts, resets, throttling) and letting everything else fail on
+the first attempt keeps the fast path fast without giving up the genuine benefit of
+retrying a transient blip.
+
 ## Why Polly *and* the Durable retry, not just one
 
 Durable's `RetryPolicy` operates at the activity level — if an entire activity throws,

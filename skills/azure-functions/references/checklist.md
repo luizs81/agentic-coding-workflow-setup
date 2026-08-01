@@ -28,6 +28,9 @@ only to timer-triggered apps.
 - [ ] `PollyResiliencePipeline` registered singleton and injected into every
       infrastructure class making external calls
 - [ ] Retry count either left at the default 3 or tuned with the reason at the call site
+- [ ] Retry strategy has a `ShouldHandle` predicate scoped to transient faults — no
+      retry on the base `Exception` type; auth/permission/malformed-request failures
+      fail on the first attempt
 - [ ] **[Orchestrated]** Durable `RetryPolicy` present at activity level as a backstop
 - [ ] Unit test project scaffolded with the minimum coverage in pillar 3
 - [ ] App Insights configured in **both** `host.json` and `Program.cs`
