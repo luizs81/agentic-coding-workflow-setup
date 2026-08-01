@@ -64,6 +64,17 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    after 3 tries, stop looping and escalate to the user with the task, the diff, and the
    last review, rather than burning further cycles on something that isn't converging.
 
+   **Self-fix trailing single-issue findings instead of spawning another round.** If a
+   review round comes back with exactly one Critical/Major finding left and it's contained
+   — a doc comment, a wrong constant, a one-line assertion, anything fixable by reading the
+   finding and editing the file directly, with no design ambiguity and no multi-file
+   fan-out — fix it yourself with `Edit` rather than spawning another implementer/reviewer
+   round-trip. Verify with a build/test run appropriate to the stack afterward, and record
+   it as a self-fix (not a subagent round) in the final report. Fall back to a full subagent
+   round only when the finding is non-trivial: touches multiple files, requires re-deriving
+   a design decision, or you're not confident the fix is correct without a second pair of
+   eyes.
+
 5. **Check off the task** — edit the backlog file, flipping `- [ ]` to `- [x]` for that
    item — once the reviewer is clean.
 
@@ -93,6 +104,29 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
 - If a task's own text says it depends on a later or earlier task, or the implementer flags
   a blocking ambiguity mid-task, stop and ask the user rather than guessing — this mirrors
   the "don't guess on ambiguous business details, ask" rule already in the ADF/dbt agents.
+
+## Lightweight path for low-risk tasks
+
+Not every task needs the full implementer→reviewer ceremony. Before starting step 1 for a
+task, judge whether it qualifies as low-risk:
+
+- Small, additive, and mechanically simple — a new config/options class, a constant, a
+  small pure helper, a doc/comment sweep, wiring an existing type into DI — not new business
+  logic, not a change to an existing code path, not anything touching resilience, auth,
+  money, dates/timezones, or external I/O.
+- Fully scoped by the task text itself, with no ambiguity to resolve.
+- Low blast radius: a mistake here is cheap to spot and cheap to fix.
+
+If a task qualifies, skip the implementer subagent and write it yourself directly (Read/
+Edit/Write), then still send it to the reviewer subagent once (step 2) before checking it
+off — the reviewer pass stays mandatory, only the implementer round is skipped. If the
+reviewer comes back with a Critical/Major finding, escalate to the full implementer/
+reviewer loop from that point rather than continuing to self-fix — a real finding on a task
+you judged "low-risk" means the judgment call was wrong, not that the fix should stay
+informal.
+
+When in doubt, don't take the shortcut — the full loop is the default, this is the
+exception.
 
 ## When the backlog is exhausted
 
