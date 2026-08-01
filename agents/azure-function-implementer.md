@@ -42,7 +42,11 @@ application code (that's a different agent's job).
 - **Resilience.** Every outbound call goes through the project's shared
   `PollyResiliencePipeline` — this is required, not "if the project already uses it."
   ADR-001 §3.5 has the default numbers; if you tune the retry count, record why at the
-  call site.
+  call site. The retry strategy must carry a `ShouldHandle` predicate scoped to
+  transient faults (timeouts, connection resets, throttling, 429/503) — never retry on
+  the base `Exception` type. Auth/permission failures, expired credentials, and
+  malformed requests fail on the first attempt; a retry can't fix what needs a human.
+  The exact exception types differ per SDK — pick them at the call site and comment why.
 - **Logging.** `ILogger<T>` only, never Serilog or a static logger. Entry points open a
   `BeginScope()` with the invocation or orchestration instance ID. Named placeholders in
   message templates, never string interpolation.

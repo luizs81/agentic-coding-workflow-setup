@@ -41,7 +41,10 @@ report issues.
 - **Configuration.** `Environment.GetEnvironmentVariable()` anywhere. An Options class
   that isn't `sealed`, lacks `SectionName`, or has properties with no safe default.
 - **Resilience.** An outbound call not routed through `PollyResiliencePipeline`. A tuned
-  retry count with no reason recorded at the call site.
+  retry count with no reason recorded at the call site. A retry strategy with no
+  `ShouldHandle` predicate, or one that retries on the base `Exception` type — this
+  means auth/permission failures and other non-transient errors get the full retry
+  budget burned on them before the run fails, instead of failing fast on attempt one.
 - **Notifications.** A notification path that can throw and fail the run. A failure path
   with no notification. Notification scope that contradicts what `AGENTS.md` states for
   this app's trigger shape.
