@@ -56,6 +56,14 @@ report issues.
 - **Idempotency.** A side-effecting operation with no guard against duplicate execution
   on retry. This is the most common Functions-specific bug — check every trigger, not
   just ones that look risky.
+- **Retried delegates that mutate shared state.** Inside a delegate passed to
+  `PollyResiliencePipeline.ExecuteAsync`, any write to state the delegate doesn't own —
+  a caller's collection, a cache, a counter, a field — survives a failed attempt and is
+  re-applied on retry. Read every such delegate for what it touches beyond its own
+  locals; the fix is to accumulate locally and merge after `ExecuteAsync` returns.
+  Don't downgrade it because the accumulator is a `HashSet`/`Dictionary` of keys where
+  re-adding is harmless — the same shape over a summing dictionary or list
+  double-counts silently. See ADR-001 §3.5.
 - **Isolated worker model.** In-process attributes or an in-process host pattern. The
   standard is isolated worker only.
 - **[Durable] Orchestrator determinism.** `DateTime.Now`, `Guid.NewGuid()`, I/O, or
@@ -72,6 +80,23 @@ report issues.
 - **Test coverage.** New logic without tests. Specifically: does the use case have happy
   path plus each dependency-failure mode, and a test proving notification failure does
   not block the run? Do tests pass with no network and no Azure credentials?
+- **Tests that pass against the bug they name.** A test's existence is not coverage. For
+  any test asserting a specific defect is fixed, ask what it would do against the
+  pre-fix implementation — if it would have passed then too, it pins the happy path and
+  nothing more. Two recurring shapes:
+  - **The fault is injected too early.** A fake that throws when the query is issued
+    never exercises a failure *partway through* a result set, which is the case a
+    partial-state or mid-stream bug actually lives in. To discriminate, the fake must
+    fail after N successful rows, not before the first.
+  - **Assertions count instead of comparing content.** `Assert.Equal(2, chunks.Count)`
+    passes for an implementation that chunks correctly and one that duplicates a row
+    across the boundary. Assert the union of what was actually passed to the dependency
+    equals the expected set, *and* assert the total item count — the set comparison
+    alone swallows duplicates.
+
+  When the fix is structurally correct but the test is weaker than it appears, report it
+  as a Minor and say plainly what it does and does not prove, rather than letting it
+  stand as stronger coverage than it is.
 
 Return a prioritized list: Critical / Major / Minor, each with file, line reference if
 possible, and a one-line explanation of why it matters. Do not rewrite code. Do not
