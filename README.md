@@ -39,7 +39,7 @@ reviewer is deliberately given only read tools; it reports findings, it doesn't 
 
 None of this is meant to be used verbatim — the agents assume specific stacks and repo layouts
 that won't match yours. The reusable part is the shape: pair an implementer with a reviewer, point
-both at the same standing standard (an ADR, a style guide, a `CLAUDE.md`), give the reviewer
+both at the same standing standard (an ADR, a style guide, an `AGENTS.md`), give the reviewer
 narrower tools and a mandate to trace real files rather than trust the implementer's own account,
 and use a command like `/work-backlog` to drive the loop across a task list without needing to
 babysit the hand-off between them.
