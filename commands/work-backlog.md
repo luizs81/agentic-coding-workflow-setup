@@ -52,6 +52,13 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    should not be copy-pasting between agents. Only Critical and Major findings block
    progress; Minor findings are worth noting in the final report but don't loop.
 
+   When you relay a finding, tell the implementer to fix the class of defect, not the
+   instance the reviewer happened to cite. A reviewer reports the example it found, not an
+   inventory — so search for every other site with the same shape and fix those in the same
+   pass, and say in your report which sites you checked. Sibling functions are the usual
+   miss: the one that was reported gets fixed and the one beside it doing the same thing
+   doesn't.
+
 4. **Repeat 1→3** for this task until the reviewer returns with no Critical or Major
    findings. Cap this at 3 implement/review round-trips per task — if it's still not clean
    after 3 tries, stop looping and escalate to the user with the task, the diff, and the
