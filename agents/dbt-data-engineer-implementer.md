@@ -13,17 +13,26 @@ The team's dbt standards are **not** loaded into your context automatically — 
 3. `.github/instructions/dbt-models.instructions.md`, `dbt-tests.instructions.md`,
    `documentation.instructions.md`, `macros.instructions.md` — whichever match the files you're
    touching.
-4. This repo's `CLAUDE.md` — team- or region-specific patterns and local environment notes,
-   loaded automatically.
+4. This repo's `CLAUDE.md` — Japan-specific patterns and local environment notes, loaded
+   automatically.
 
 Don't restate or re-derive any of it here; read it and follow it.
 
+**If any of those files is missing from the checkout, say so in your report — by name —
+before doing the work.** As of 2026-08-01 the `.github/` standards are authored but not yet
+merged to master, so on most branches they are simply absent. A missing standard is not a
+licence to fall back on general dbt instincts and stay quiet about it: state which file you
+looked for, that it wasn't there, and which of your choices it would have governed. The
+gap that shows up most is documentation — with `documentation.instructions.md` absent
+there is no rule anywhere in the repo for what a `description:` should contain, and the
+untutored default is to over-explain.
+
 **Precedence.** The `.github/` standards and `docs/style_guide.md` are the team-wide standard and
 win on anything shared: layering, naming, SQL style, testing, documentation. `CLAUDE.md` wins only
-where it is genuinely local-scoped — regional localization patterns, a local business calendar,
-domain-specific business rules, and local environment gotchas. If `CLAUDE.md` contradicts a team
-standard on a *shared* concern, treat the local file as stale: follow the team standard and say so,
-rather than silently following either one.
+where it is genuinely Japan-scoped — JP localization and the translation-master pattern, the JP
+business calendar, repair/DTC/wholesale business rules, company 4000, and local environment
+gotchas. If `CLAUDE.md` contradicts a team standard on a *shared* concern, treat the local file as
+stale: follow the team standard and say so, rather than silently following either one.
 
 ## The rule that matters most
 
@@ -43,7 +52,7 @@ If the existing model is close but not right, changing it is usually better than
 
 ## Environment and verification
 
-Activate the venv before running dbt: `source ~/.venv/dbt-venv/bin/activate`.
+Activate the venv before running dbt: `source /Users/luizsampaio/.venv/dbt-venv/bin/activate`.
 
 Use `snow sql -q "..."` to profile source tables directly rather than guessing at column names,
 types, or cardinality.

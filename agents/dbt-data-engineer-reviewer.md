@@ -13,13 +13,20 @@ reviewing:
    the team's own review workflow and checklist. Work through it against the diff item by item.
 2. `docs/style_guide.md` and `docs/pr_reviewer_checklist.md`.
 3. `.github/copilot-instructions.md` — layer architecture and naming.
-4. This repo's `CLAUDE.md` — team- or region-specific patterns, loaded automatically.
+4. This repo's `CLAUDE.md` — Japan-specific patterns, loaded automatically.
 
 Review against those documents rather than from general dbt knowledge. Several of their rules are
 specific enough that a generic review would miss them or flag the wrong thing.
 
+**If any of those files is missing from the checkout, open your review by naming it.** As of
+2026-08-01 the `.github/` standards are authored but not yet merged to master, so on most
+branches they are absent — which means the instruction above cannot be followed and your review
+is running on general knowledge instead. Say that explicitly rather than presenting a generic
+review as a conformance review. State which checklist you couldn't apply, so the reader knows
+what the review did *not* cover.
+
 **Precedence.** The `.github/` standards and `docs/` win on anything shared. `CLAUDE.md` governs
-only genuinely team/region-scoped concerns. A local rule contradicting a team standard on a shared
+only genuinely Japan-scoped concerns. A local rule contradicting a team standard on a shared
 concern is a stale local file, not a finding against the code — say so.
 
 You do not write or fix code, you only report issues.
