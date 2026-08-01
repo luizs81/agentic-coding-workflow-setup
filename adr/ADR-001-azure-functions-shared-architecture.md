@@ -208,6 +208,40 @@ attempt is expensive or slow (browser automation, large report generation) so a
 failing run surfaces quickly instead of multiplying cost. Record the reason at the
 call site.
 
+**The retried delegate must be side-effect-free.** Polly re-invokes the delegate passed
+to `ExecuteAsync` from the beginning, but it cannot undo what a failed attempt already
+did. Anything the delegate mutates outside its own scope — a caller-owned collection, a
+cache, a counter, a field — carries the partial results of every failed attempt into the
+successful one. A reader that throws partway through a result set is the ordinary case,
+not an exotic one.
+
+Build results into a local, then hand them back through the return value and let the
+caller merge after `ExecuteAsync` returns:
+
+```csharp
+// Wrong: rows read before the failure survive the retry.
+await _pipeline.ExecuteAsync(async ct => {
+    await using var reader = await cmd.ExecuteReaderAsync(ct);
+    while (await reader.ReadAsync(ct)) sharedSet.Add(reader.GetString(0));
+});
+
+// Right: the delegate owns its state; the caller merges once, on success.
+var rows = await _pipeline.ExecuteAsync(async ct => {
+    var local = new List<string>();
+    await using var reader = await cmd.ExecuteReaderAsync(ct);
+    while (await reader.ReadAsync(ct)) local.Add(reader.GetString(0));
+    return local;
+});
+foreach (var row in rows) sharedSet.Add(row);
+```
+
+Severity depends on the accumulator, and a set is the *forgiving* case: re-adding a
+duplicate key to a `HashSet` or `Dictionary` is idempotent, so the corruption stays
+latent. An additive accumulator — a summing `Dictionary<string, int>`, a `List`, a
+running total, `+=` on any field — silently double-counts instead, producing a plausible
+wrong number rather than an error. Treat the pattern as a defect wherever it appears, not
+only where it currently happens to be survivable.
+
 **[Orchestrated]** The Durable `RetryPolicy` stays at the activity level as a coarse
 backstop; it does not replace Polly. Polly absorbs transient SDK-level errors so a
 single timeout doesn't trigger a full Durable backoff; the Durable retry covers

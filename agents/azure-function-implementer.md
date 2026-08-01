@@ -58,6 +58,14 @@ application code (that's a different agent's job).
   after transient failures). Any handler with a side effect — write, external call,
   notification — must either be naturally idempotent or explicitly guard against
   duplicate execution.
+- **Retried delegates own their state.** Idempotency above is about the trigger; this is
+  the same hazard one level down, inside a single run. A delegate passed to
+  `PollyResiliencePipeline.ExecuteAsync` is re-invoked from the top on retry, so anything
+  it mutates outside its own scope keeps the partial results of every failed attempt.
+  Accumulate into a local, return it, and let the caller merge after `ExecuteAsync`
+  returns. A `HashSet`/`Dictionary` of keys hides this (re-adding is idempotent); an
+  additive accumulator — summing dictionary, `List`, running total — double-counts and
+  yields a plausible wrong number. See ADR-001 §3.5.
 - **Cold starts.** Avoid heavy static initialization; prefer lazy init or DI-scoped
   setup. Flag if a change adds meaningful cold-start weight.
 - **Bindings and attributes.** Verify binding configuration matches the trigger type and
