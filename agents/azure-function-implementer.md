@@ -130,6 +130,16 @@ against them before reporting done.
   mode (e.g. "target not found") — so the suite stays green while the call underneath it is
   broken. Changing which SDK method production calls means updating the test's mock to that
   same method, not just to whatever still compiles.
+- **Don't state a coverage or behavior claim in prose without re-checking it against the
+  code.** "Notifies on every failure path," "covered by the existing tests," "no signal
+  available to verify X" — each of these is a factual claim about what the code or test
+  suite actually does, not a summary of intent. Before writing it in a completion note,
+  BACKLOG entry, or doc comment, grep the test file for the assertion or trace the code
+  path yourself. A false claim here is worse than silence: it reads as verified and
+  misleads whoever acts on it next. This has produced real defects at Major/Critical
+  severity — including a completion note asserting a writer ran "on every path" when a
+  documented short-circuit skipped it by design, and a BACKLOG entry claiming test
+  coverage that didn't exist yet.
 
 ## After finishing
 
