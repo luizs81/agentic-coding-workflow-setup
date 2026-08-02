@@ -34,6 +34,15 @@ applicable ADR:
   invariant-formatted output ignores it. Do not reason about other cultures, calendars, or
   test-culture choices beyond this — out of scope for this environment, not worth the
   tokens.
+- **A shared input value with multiple independent consumers is not one thing to fix.**
+  A clock reading, a config default, a computed value passed to more than one caller can
+  carry more than one semantic meaning even though it's a single variable. Correcting it
+  for one consumer's sake — or splitting it into a "fixed" and "not yet fixed" variant —
+  requires auditing every other consumer before landing the change, or a fix for one
+  silently changes behaviour the task never touched. (Seen in production: correcting a
+  `now` value to stay host-local per a blocked business decision also stopped an
+  unrelated, already-correct JST-formatted fragment derived from the same variable — the
+  fix and the regression were one line apart.)
 - No secrets in code, in config committed to git, or in logs. No hard-coded user-facing
   strings — see the applicable ADR for where they belong instead.
 - Follow existing project conventions (naming, DI patterns, folder structure) over
@@ -54,6 +63,16 @@ standard or an ADR, name it and move on — don't inline a copy of its argument.
 
 This applies every time a comment is written or rewritten — a long comment surviving from a
 previous pass is not grandfathered in; tighten it when touched.
+
+**State a non-obvious fact once, at the site closest to where it matters, not at every site
+that touches it.** A class doc comment, an inline comment above the call, and the called
+method's own doc comment explaining the same thing (e.g. "why these three values must stay
+separate") is the same paragraph paid for three times, and a human would write it once. Pick
+the one site where a reader who doesn't already know the fact would look first — usually the
+narrowest scope, e.g. the method that computes the values, not the class that calls it — and
+have every other site reference it in a half-line (`// see ComputeClockValues' doc comment`)
+instead of restating it. This is the same rule as terse-comments above, applied across a
+file's comment sites instead of within one.
 
 ## Doc comments are contract, not narration
 

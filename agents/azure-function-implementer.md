@@ -103,11 +103,22 @@ against them before reporting done.
 - **A reference repo is an example, not a template.** Anything copied from one — a package
   reference, a host setting, an auth mode — is justified against *this* project's layering
   and dependencies before it lands, or it doesn't land.
-- **Widening what reaches existing code is never a one-line change.** If the task relaxes a
-  filter, admits previously-rejected rows, or loosens a guard, then every downstream
-  consumer of that input is in scope: re-audit each one for assumptions the old narrowness
-  was silently protecting. State in your report which consumers you checked. Fixes that
-  widen input have introduced more defects in this role's history than they resolved.
+- **A change that touches something shared is never local to the task that motivated it.**
+  Before landing a fix, enumerate every other consumer/call site of whatever you changed
+  and confirm each one's requirement still holds — don't reason about only the one that
+  prompted the change. State in your report which consumers you checked. Three shapes this
+  has taken here, each a real caught defect:
+  - *Widening an input* (relaxing a filter, admitting previously-rejected rows, loosening a
+    guard) re-exposes every downstream consumer to cases the old narrowness was silently
+    protecting them from.
+  - *Correcting a shared clock/config value* for one consumer can revert another that was
+    already correct: pinning a shared `now` to host-local (per a blocked business decision
+    for `SeasonDeliveryGroup`/`ShipDateCalculator`) also silently stopped an unrelated,
+    already-correct JST-formatted `PurchaseOrder` fragment derived from that same variable
+    — caught only in a second review round.
+  - *Switching an SDK call* because it "seems atomic" or "creates-or-updates" without
+    checking the actual docs/source can introduce an unstated precondition (target must
+    already exist, etc.) that turns a narrow-case fix into a total on-every-run failure.
 - **Make sure an error and its log line identify the same thing.** If a diagnostic message
   and the object it describes carry different row/record identifiers, whoever reads the
   output has two incompatible answers to "which one failed?"
@@ -117,14 +128,6 @@ against them before reporting done.
   puts one rule in two places, free to drift. Check the backlog for a later task that
   reports on, audits, or reconciles what this one does; if there is one, its input is part
   of this task's output.
-- **Don't infer SDK semantics from a method's name or call count.** "One call instead of
-  two must be atomic," "this probably creates-or-updates," "fewer round-trips means fewer
-  failure windows" — these are guesses, not verified behavior. Before switching to an SDK
-  call you haven't already used correctly elsewhere in this codebase, fetch its actual docs
-  or read the SDK source, and confirm what it does when its precondition isn't met (target
-  doesn't exist yet, already exists, etc.). This has previously turned a fix for a narrow
-  edge case into a total on-every-run failure, because the replacement call silently
-  required a precondition that production never satisfies.
 - **Mock the exact overload the code calls.** A substitute mocked against the wrong SDK
   method signature returns success unconditionally and can't represent the real failure
   mode (e.g. "target not found") — so the suite stays green while the call underneath it is
