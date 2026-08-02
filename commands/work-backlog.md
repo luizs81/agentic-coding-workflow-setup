@@ -97,6 +97,12 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    and the standing git-safety rules — review what's staged, never `git add -A`, never
    `--no-verify`. Use the task's own text as the basis for the commit message.
 
+   End the commit message with a trailer recording how the task converged, so review
+   round-trips are queryable later without archaeology through commit prose:
+   `Review-rounds: N` where N counts full implement/review round-trips this task took
+   (1 if the reviewer was clean on the first pass), plus `Self-fixed: yes` if step 4's
+   self-fix path was used for the trailing finding instead of spawning another round.
+
 7. **Move to the next unchecked task** and repeat from step 1.
 
 ## Between tasks
