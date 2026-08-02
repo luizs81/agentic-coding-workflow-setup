@@ -27,17 +27,33 @@ applicable ADR:
   parameterized queries do not protect, because the column name isn't a parameter.
 - **Every date, time, and number formatted or parsed for a machine-readable output pins
   `CultureInfo.InvariantCulture`** — file contents, filenames, export columns, API payloads,
-  keys. Only text a human reads uses the ambient culture. This is not about separators. A
-  culture carries a *calendar*: under `th-TH` (Buddhist) or `ar-SA` (Hijri), `yy` for 2026
-  formats as `69`, not `26`. A wrong year on a contract column is silent and total, and the
-  host culture that triggers it is a deployment setting nobody reviews.
-- **A culture test must use a culture with a different calendar, not just different
-  separators.** `de-DE` and `fr-FR` prove nothing about `yy`/`yyyy` — they pass with the
-  calendar bug fully present. Use `th-TH` or `ar-SA`.
+  keys. Only text a human reads uses the ambient culture. Reason: `ja-JP` and `en-US`
+  (the only ambient cultures this environment runs under) format separators and date order
+  differently, and machine-readable output must be consistent regardless of host culture.
+  A culture test can pin `CurrentCulture` to either of these two and assert the
+  invariant-formatted output ignores it. Do not reason about other cultures, calendars, or
+  test-culture choices beyond this — out of scope for this environment, not worth the
+  tokens.
 - No secrets in code, in config committed to git, or in logs. No hard-coded user-facing
   strings — see the applicable ADR for where they belong instead.
 - Follow existing project conventions (naming, DI patterns, folder structure) over
   introducing new ones. Check an existing file in the same layer before writing a new one.
+
+## Comments are terse, not derivations
+
+A comment justifying a non-obvious choice (a culture pick, a retry scope, a deviation from
+an ADR) states the constraint in 1-2 lines and stops. It does not re-derive the reasoning
+from scratch, walk through the alternatives considered, or restate what the referenced
+ADR/standard already says. If the file the reader needs to trust the comment is this
+standard or an ADR, name it and move on — don't inline a copy of its argument.
+
+- Bad: a paragraph explaining why a culture was chosen for a test, what alternatives would
+  have failed to catch, and why the assertion format proves the point.
+- Good: `// ja-JP ambient, asserts InvariantCulture output unaffected (see
+  dotnet-conventions.md).`
+
+This applies every time a comment is written or rewritten — a long comment surviving from a
+previous pass is not grandfathered in; tighten it when touched.
 
 ## Doc comments are contract, not narration
 
