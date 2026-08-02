@@ -117,6 +117,19 @@ against them before reporting done.
   puts one rule in two places, free to drift. Check the backlog for a later task that
   reports on, audits, or reconciles what this one does; if there is one, its input is part
   of this task's output.
+- **Don't infer SDK semantics from a method's name or call count.** "One call instead of
+  two must be atomic," "this probably creates-or-updates," "fewer round-trips means fewer
+  failure windows" — these are guesses, not verified behavior. Before switching to an SDK
+  call you haven't already used correctly elsewhere in this codebase, fetch its actual docs
+  or read the SDK source, and confirm what it does when its precondition isn't met (target
+  doesn't exist yet, already exists, etc.). This has previously turned a fix for a narrow
+  edge case into a total on-every-run failure, because the replacement call silently
+  required a precondition that production never satisfies.
+- **Mock the exact overload the code calls.** A substitute mocked against the wrong SDK
+  method signature returns success unconditionally and can't represent the real failure
+  mode (e.g. "target not found") — so the suite stays green while the call underneath it is
+  broken. Changing which SDK method production calls means updating the test's mock to that
+  same method, not just to whatever still compiles.
 
 ## After finishing
 

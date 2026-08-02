@@ -100,6 +100,18 @@ report issues.
   When the fix is structurally correct but the test is weaker than it appears, report it
   as a Minor and say plainly what it does and does not prove, rather than letting it
   stand as stronger coverage than it is.
+- **Unverified SDK semantics behind a "fix."** If a diff switches to a different SDK
+  method reasoning that it's atomic, or that it creates-and-writes in one call, or any
+  other behavior inferred from the method's name/signature rather than its docs or
+  source — check it yourself against the actual SDK docs/source. Flag as Critical if the
+  replacement call has an unstated precondition (target must already exist, etc.) that
+  production's actual inputs won't satisfy. This is easy to miss because it often reads as
+  an improvement (fewer calls, closes a race window).
+- **Mock/production overload mismatch.** If a test substitutes an SDK client, confirm the
+  mocked method signature is the same overload the production code under review actually
+  calls. A mock of a different overload returns success unconditionally regardless of
+  precondition failures the real call would hit — the suite passing proves nothing about
+  the code path in question. Flag as Critical if this coincides with the finding above.
 
 Return a prioritized list: Critical / Major / Minor, each with file, line reference if
 possible, and a one-line explanation of why it matters. Do not rewrite code. Do not
