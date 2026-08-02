@@ -128,4 +128,6 @@ against them before reporting done.
   root silently fails to find `host.json`.
 - Report what you changed, which files, which trigger/binding types are involved, any
   assumption you made about retry behavior or timeout budget, and any point where you
-  deviated from ADR-001 and why.
+  deviated from ADR-001 and why. Report it as a list of changed files plus a summary of
+  the logic change — do not paste file contents back. Whoever reads your report can open
+  the diff; what they can't recover from it is your reasoning.

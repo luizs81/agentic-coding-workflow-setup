@@ -42,10 +42,13 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
      work that already exists.
 
 2. **Review.** Spawn the reviewer agent (`Agent` tool, `subagent_type` = the given reviewer
-   name, `run_in_background: false`) with a prompt describing what was just implemented and
-   asking it to review the current diff/working tree state against its standard. Do not
-   summarize or filter the implementer's own claims into the reviewer's prompt — let the
-   reviewer inspect the actual files itself.
+   name, `run_in_background: false`) and ask it to review the current diff/working tree
+   state against its standard.
+
+   The reviewer's prompt contains only: the task's text and acceptance criteria, the
+   changed file paths (`git diff --name-only`), and an instruction to read those files
+   itself. Never paste implementer narrative or file contents into it — the reviewer must
+   inspect the actual files rather than review a summary of them.
 
 3. **Relay, don't ask.** Take the reviewer's returned findings and feed them directly into
    the next implementer prompt yourself — this is the whole point of the loop, the user
