@@ -376,59 +376,39 @@ gotchas).
 
 ## 4. Options considered
 
-**Option A — flat single-project structure**
+**Option A — flat single-project structure.** Minimal setup, fast iteration; but
+untestable without interfaces, no reuse, single-responsibility violated at the file
+level.
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low upfront; all code in one project |
-| Testability | Low; no interfaces, logic bound to trigger entry points |
-| Maintainability | Low; changing an output target means editing business logic |
-| Onboarding | Familiar for small scripts, unfamiliar for engineers expecting layering |
-
-Pros: minimal setup, fast iteration. Cons: untestable without interfaces, no reuse,
-single-responsibility violated at the file level.
-
-**Option B — Clean Architecture with separate projects (chosen)**
-
-| Dimension | Assessment |
-|---|---|
-| Complexity | Medium upfront; four projects and project references |
-| Testability | High; interfaces allow full substitution of external calls |
-| Maintainability | High; a new output target is a new class implementing an interface |
-| Onboarding | High; a pattern any ASP.NET/DDD engineer recognizes |
-
-Pros: full testability, enforced dependency boundaries, layer-by-layer review,
-consistency across the estate. Cons: more setup and more files for simple functions —
-mitigated by scaffolding from an existing conforming repo.
+**Option B — Clean Architecture with separate projects (chosen).** Full testability,
+enforced dependency boundaries, consistency across the estate; costs more setup and
+more files for simple functions — mitigated by scaffolding from an existing
+conforming repo.
 
 ## 5. Trade-off analysis
 
-The trade-off is initial velocity against long-term maintainability. For a
-genuinely throwaway script, Option A is defensible. For recurring, business-critical
-functions — the ones feeding reports that people make decisions from, or receiving
-payment events that cannot be replayed — the operational risk of untestable code
-with silent failure modes outweighs the setup cost by a wide margin.
-
-The applications are similar enough in shape (Azure service calls, scheduled or
-event-driven entry points, an operational alerting need) that a shared standard is
-both feasible and valuable, and it has now held across orchestrated, scheduled, and
-plain HTTP-triggered applications.
+Initial velocity against long-term maintainability. For a genuinely throwaway
+script, Option A is defensible. For recurring, business-critical functions — report
+feeds people make decisions from, payment events that cannot be replayed — the
+operational risk of untestable code with silent failure modes outweighs the setup
+cost by a wide margin. The applications are similar enough in shape that a shared
+standard is both feasible and valuable, and it has held across orchestrated,
+scheduled, and plain HTTP-triggered applications.
 
 ## 6. Consequences
 
-| | |
-|---|---|
-| **Easier** | Unit testing, onboarding, adding new output targets, debugging via correlated structured logs and Teams alerts, moving engineers between applications. |
-| **Harder** | Initial setup for a new function — mitigated by scaffolding from any conforming repo. |
-| **Must revisit** | Whether four separate assemblies remain right versus vertical-slice-per-feature, if applications grow well beyond a handful of use cases. At current scale, layered is appropriate. |
+Easier: unit testing, onboarding, adding new output targets, debugging via
+correlated structured logs and Teams alerts, moving engineers between applications.
+Harder: initial setup for a new function, mitigated by scaffolding from any
+conforming repo. Must revisit: whether four separate assemblies remain right versus
+vertical-slice-per-feature, if applications grow well beyond a handful of use cases —
+at current scale, layered is appropriate.
 
 ## 7. Action items
 
-1. Link this ADR from each repo's README.
-2. Add a PR template checklist item: *"Does this change follow ADR-001?"*
-3. Introduce `Directory.Packages.props` in each existing repo and strip `Version`
-   attributes from the `.csproj` files (§3.2), reconciling drifted versions upward
-   as part of the migration.
-4. Scaffold new applications from an existing conforming repo rather than from scratch.
-5. Review annually, or whenever a new application cannot be built within this standard —
-   the second case is the more informative signal.
+Link this ADR from each repo's README; add a PR template checklist item ("Does this
+change follow ADR-001?"); introduce `Directory.Packages.props` in each existing repo
+and strip `Version` attributes from `.csproj` files (§3.2); scaffold new applications
+from an existing conforming repo rather than from scratch; review annually or
+whenever a new application cannot be built within this standard, whichever comes
+first.
