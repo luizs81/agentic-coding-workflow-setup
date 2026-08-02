@@ -83,6 +83,16 @@ report issues.
 - **Test coverage.** New logic without tests. Specifically: does the use case have happy
   path plus each dependency-failure mode, and a test proving notification failure does
   not block the run? Do tests pass with no network and no Azure credentials?
+- **Notification assertion coverage on every failure path, not just most.** It's common
+  for an implementer to add the "notify was called" assertion to most failure-path tests
+  but miss the one where it matters most: a structural/parse failure (or any early
+  short-circuit) that produces no CSV, no report, and no other artifact — there the Teams
+  notification is the *only* record a run happened at all. Check each failure-path test
+  individually for this assertion rather than trusting that adding it to one test means
+  it was added everywhere. Also check any prose claim ("notifies on X," "covered by
+  tests," "no signal to verify Y") against the actual test file or code path yourself —
+  don't take a completion note or BACKLOG entry's coverage claim at face value; this has
+  produced Major/Critical findings when the claim was simply false.
 - **Tests that pass against the bug they name.** A test's existence is not coverage. For
   any test asserting a specific defect is fixed, ask what it would do against the
   pre-fix implementation — if it would have passed then too, it pins the happy path and
