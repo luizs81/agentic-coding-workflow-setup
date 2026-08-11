@@ -64,6 +64,26 @@ Not because they're absent from the repo standard — because a plausible-soundi
 - **Secrets never appear in JSON.** Credentials go through Key Vault; global parameters hold a
   secret *name or URL*, never a value. No hardcoded `http(s)://` endpoint in a Web or Azure
   Function activity `url` — parameterize it. The validator enforces both.
+- **Changing a Data Flow's sink dataset means updating every caller.** If the sink's dataset
+  gained/changed parameters (e.g. swapping a Snowflake sink for a parameterized blob sink with
+  `container`/`folderPath`), every `ExecuteDataFlow` activity across every pipeline that invokes
+  that Data Flow needs its `typeProperties.dataflow.datasetParameters` block updated to supply
+  them — `grep -rl "<dataflowName>"` pipeline/ to find every caller, not just the one you're
+  actively editing. A missing entry here doesn't fail the validator; it only fails at publish/run
+  time as "No value provided for parameter X", so you must check this by hand.
+- **Changing a sink's schema means re-deriving its column mapping.** If you add, remove, or
+  rename a column feeding into a sink (including a `derivedColumn`/`select` transformation
+  upstream of it), the sink's own `mapColumn`/output mapping block must be regenerated to match —
+  a stale mapping that still references an old column name (e.g. `derivedColumn3@rollupaccount`)
+  publishes fine but fails at runtime with "Input column ... cannot be found" / "does not match
+  your current sink schema". Re-check the full column list end to end, don't assume the mapping
+  updates itself when you change what's upstream.
+- **ADF activity names have a hard 55-character limit**, enforced only at publish time, not by
+  the validator. This bites `Notify_Error`/`ExecutePipeline` activities most often because their
+  names get built by prefixing a fixed string (`notify_error_`) onto an already-long activity
+  name (`copy_source_system_customer_orders_blob_to_snowflake` → 55+ chars combined). Count the
+  character length of every new or renamed activity name before writing it, and shorten the base
+  name (not just truncate blindly) if a prefixed variant would exceed 55.
 
 ## Before opening a PR
 

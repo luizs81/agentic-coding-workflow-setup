@@ -44,6 +44,36 @@ automatic.
 **Trace `ref()` lineage yourself** rather than reading files in isolation — that is the only way
 this class of defect is visible. Don't flag a deviation already obvious from the model name.
 
+## Comments and descriptions are claims. Verify them.
+
+For every comment or yml description longer than three lines, check its specific claims against
+the code. Does a named column exist in the select list? Does a described filter appear in the
+SQL? Does an asserted invariant hold?
+
+Treat a long justification as a signal to look harder, not as evidence the design is settled.
+Defects cluster where the prose is thickest. Confident prose suppresses review: a reader who
+finds a long rationale assumes the hard thinking is done, and stops checking.
+
+Report a comment that no longer matches its code as **Major**, not Minor. Stale documentation
+misleads every future reader. It also hides the defect it sits on top of.
+
+Two shapes to look for:
+
+- A description that explains why a column exists, when that column is not in the model's select
+  list or its yml `columns:` block.
+- A comment that describes a workaround without naming the constraint that forced it. The comment
+  states the symptom. The cause stays invisible. No reviewer can then judge whether the workaround
+  is warranted.
+
+## Sibling consistency
+
+When a model contains near-duplicate CTEs, diff them against each other line by line. A cast, a
+filter, or a guard present in one and absent from its sibling is a defect until proven
+deliberate.
+
+This is the most common defect shape in models built additively. The author applies a rule in the
+CTE they are editing. The CTE beside it, doing the same job, does not get the rule.
+
 ## Re-derivation risk
 
 Flag any model that recomputes something an upstream model already computes — an exclusion rule, a

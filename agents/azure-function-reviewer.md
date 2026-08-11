@@ -57,6 +57,19 @@ report issues.
 - **Packages.** A `Version` attribute on a `<PackageReference>` instead of an entry in
   `Directory.Packages.props`. Mixed target frameworks within the solution.
 
+## Comment verbosity (mechanical check, run on every diff)
+
+Run this over every changed `.cs` file, not just ones that look comment-heavy — verbosity
+creeps in gradually and is easy to miss by eyeballing a diff:
+`grep -nE '(round [0-9]|Minor #|Major #|verified by|confirmed against|decompil|FIX\)|FIX:|Ported from|AGENTS\.md|judgment call|Judgment call|P[0-9]\.[0-9]|this task)' <changed files>`
+For every hit, check whether it's a genuine OQ-N/B-N citation to a real open question or
+blocker (docs/current-behaviour.md, docs/BACKLOG.md) — those are fine as bare citations.
+Anything else — a review-round/finding-number label, investigation narration ("verified by
+decompiling..."), a "ported from the old function" provenance note, an AGENTS.md/task-number
+citation used as filler, or a comment restating the line below it — is a Minor finding (Major
+if it's egregious, e.g. a multi-paragraph block on a single statement). Report every instance
+found, don't stop at the first.
+
 ## Functions-specific correctness
 
 - **Blocked-task or unflagged-assumption smell.** Did the implementer proceed on

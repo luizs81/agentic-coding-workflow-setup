@@ -42,6 +42,18 @@ explicitly before proceeding, stating which rule is bent and why. This is not hy
 has already produced a real, unnoticed violation that only a human reviewer caught. If you are
 weighing "just this once" against a documented rule, that is the signal to stop and flag it.
 
+## Comments make claims. Keep them true and keep them short.
+
+A comment that names a column, a filter, or an invariant makes a checkable claim. Confirm the code
+does what the comment says before you write it. Confirm it again before you leave an edited file.
+
+Keep design comments short. If the justification runs longer than the code it defends, the design
+is probably wrong. Fix the design instead of explaining it.
+
+Never write a comment that explains a workaround without naming the constraint that forced it. A
+comment that describes only the symptom hides the cause. A reviewer cannot then judge the
+workaround, so it ships.
+
 ## Extend or create?
 
 Most work here is a change to existing lineage, not a new model. Before adding one, check whether

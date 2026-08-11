@@ -133,6 +133,20 @@ against them before reporting done.
   mode (e.g. "target not found") — so the suite stays green while the call underneath it is
   broken. Changing which SDK method production calls means updating the test's mock to that
   same method, not just to whatever still compiles.
+- **A comment states what the code does and why, in the present tense — nothing else.**
+  One or two sentences, almost never more. It is not the place for: review-round or
+  finding-number labels (`round 4 FIX`, `Minor #2`, `Major #4`); a log of what the code
+  used to do or how the current shape was arrived at ("verified by decompiling...",
+  "confirmed against old source...", "checked X then Y then concluded..."); a citation of
+  an ADR/doc section the identifier name already implies; or a restatement of the line
+  below it. That history belongs in the PR description, the commit message, or
+  `docs/BACKLOG.md`'s per-task log — never in the source file itself, and never
+  duplicated into both. Ask, for every comment you write: if I deleted everything except
+  what the code does and the one non-obvious reason it does it that way, what would be
+  left? Write only that. A hidden constraint, a driver/SDK-specific gotcha, or the reason
+  a more-obvious-looking alternative is wrong are the only things that earn space; a
+  90-line comment block on a single `ShouldHandle` lambda was found in review and cut to
+  three sentences — the three sentences were the entire load-bearing content.
 - **Don't state a coverage or behavior claim in prose without re-checking it against the
   code.** "Notifies on every failure path," "covered by the existing tests," "no signal
   available to verify X" — each of these is a factual claim about what the code or test
@@ -148,6 +162,13 @@ against them before reporting done.
 
 - Run `dotnet build` and `dotnet test` (or the project's actual test command) and fix any
   errors before reporting done. `TreatWarningsAsErrors` is on — a warning is a failure.
+- **Grep every file you touched for comment-verbosity violations before reporting done —
+  do not rely on having followed the comment rule while writing.** Run:
+  `grep -nE '(round [0-9]|Minor #|Major #|verified by|confirmed against|decompil|FIX\)|FIX:|Ported from|AGENTS\.md|judgment call|Judgment call|P[0-9]\.[0-9]|this task)' <changed files>`
+  For every hit, cut it unless it's a genuine OQ-N/B-N citation to a real open question or
+  blocker (docs/current-behaviour.md, docs/BACKLOG.md) — those stay, narration around them
+  doesn't. This check is mandatory even on a small change; a single-file edit is exactly
+  where this rule is easiest to forget mid-task.
 - If the task warrants a live check, run `./dev-start.sh` if present. Otherwise start the
   host from **inside** the Functions project directory — the SDK resolves its working
   directory from the shell's cwd, not from `--project`, so `func start` from the repo

@@ -79,6 +79,24 @@ should be a last resort with a stated reason, not a default reach.
 - Descriptions/annotations with business context present on new objects.
 - If this is file-based ingestion: file-existence check, idempotent delete-by-filename, and
   parameterized target date patterns applied, matching the reference implementation.
+- Every activity name in the diff is ≤ 55 characters — ADF's hard limit, enforced only at publish
+  time, not by the validator. Check this by hand, especially `Notify_Error`/`ExecutePipeline`
+  activities whose name is a fixed prefix (`notify_error_`) concatenated onto another activity's
+  already-long name — the combination silently exceeds 55 even when the base activity name
+  doesn't.
+- If a Data Flow's sink dataset changed (new/renamed parameters, e.g. a Snowflake sink swapped
+  for a parameterized blob sink), confirm **every** `ExecuteDataFlow` activity that invokes it —
+  across every pipeline, not just the one in the diff's main path — has
+  `typeProperties.dataflow.datasetParameters` updated to supply the new parameters. Grep
+  `pipeline/` for the Data Flow's name to find every caller. A missing entry publishes clean and
+  only fails at runtime ("No value provided for parameter X"), so this cannot be caught by
+  running the validator alone.
+- If a sink's upstream column set changed (added/removed/renamed a column, or a
+  `derivedColumn`/`select` transformation feeding it), confirm the sink's own
+  `mapColumn`/output mapping was regenerated to match, not left stale. A mapping still
+  referencing an old column name publishes clean and fails at runtime ("Input column ... cannot
+  be found" / sink schema mismatch) — trace the full column lineage into the sink rather than
+  spot-checking.
 
 ## Secrets
 

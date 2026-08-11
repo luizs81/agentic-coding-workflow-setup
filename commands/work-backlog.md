@@ -41,7 +41,18 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
      silently absorbing it, so you can amend the later task rather than let it re-derive
      work that already exists.
 
-2. **Review.** Spawn the reviewer agent (`Agent` tool, `subagent_type` = the given reviewer
+2. **Gate on the code actually running.** Before spawning the reviewer, confirm the change
+   compiles or builds, using whatever command fits the stack (`dbt compile --select
+   <model>`, `dotnet build`, and so on). A task does not reach review until this passes.
+
+   Do not treat the implementer's report as evidence of this. An implementer can report
+   success on code that was never parsed. This gate exists because that happened: a dbt
+   model was written, reviewed clean, checked off, and committed, and it did not compile.
+   No reviewer catches that, because reviewers read files rather than run them.
+
+   If the gate fails, return to step 1 with the error. Do not count this as a review round.
+
+3. **Review.** Spawn the reviewer agent (`Agent` tool, `subagent_type` = the given reviewer
    name, `run_in_background: false`) and ask it to review the current diff/working tree
    state against its standard.
 
@@ -50,7 +61,7 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    itself. Never paste implementer narrative or file contents into it — the reviewer must
    inspect the actual files rather than review a summary of them.
 
-3. **Relay, don't ask.** Take the reviewer's returned findings and feed them directly into
+4. **Relay, don't ask.** Take the reviewer's returned findings and feed them directly into
    the next implementer prompt yourself — this is the whole point of the loop, the user
    should not be copy-pasting between agents. Only Critical and Major findings block
    progress; Minor findings are worth noting in the final report but don't loop.
@@ -62,7 +73,7 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    miss: the one that was reported gets fixed and the one beside it doing the same thing
    doesn't.
 
-4. **Repeat 1→3** for this task until the reviewer returns with no Critical or Major
+5. **Repeat 1→4** for this task until the reviewer returns with no Critical or Major
    findings. Cap this at 3 implement/review round-trips per task — if it's still not clean
    after 3 tries, stop looping and escalate to the user with the task, the diff, and the
    last review, rather than burning further cycles on something that isn't converging.
@@ -78,7 +89,7 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    a design decision, or you're not confident the fix is correct without a second pair of
    eyes.
 
-5. **Check off the task** — edit the backlog file, flipping `- [ ]` to `- [x]` for that
+6. **Check off the task** — edit the backlog file, flipping `- [ ]` to `- [x]` for that
    item — once the reviewer is clean.
 
    Before checking off, sweep whatever documentation the task's behaviour change
@@ -92,7 +103,7 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    briefed from. One that still lists a resolved blocker, or describes a mechanism that
    has since changed, doesn't just read as stale — it gets built on.
 
-6. **Commit.** Once a task is checked off, stage and commit the changes for that task alone
+7. **Commit.** Once a task is checked off, stage and commit the changes for that task alone
    (one commit per task, not one at the end) following the repo's normal commit conventions
    and the standing git-safety rules — review what's staged, never `git add -A`, never
    `--no-verify`. Use the task's own text as the basis for the commit message.
@@ -100,10 +111,10 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    End the commit message with a trailer recording how the task converged, so review
    round-trips are queryable later without archaeology through commit prose:
    `Review-rounds: N` where N counts full implement/review round-trips this task took
-   (1 if the reviewer was clean on the first pass), plus `Self-fixed: yes` if step 4's
+   (1 if the reviewer was clean on the first pass), plus `Self-fixed: yes` if step 5's
    self-fix path was used for the trailing finding instead of spawning another round.
 
-7. **Move to the next unchecked task** and repeat from step 1.
+8. **Move to the next unchecked task** and repeat from step 1.
 
 ## Between tasks
 
@@ -127,8 +138,9 @@ task, judge whether it qualifies as low-risk:
 - Low blast radius: a mistake here is cheap to spot and cheap to fix.
 
 If a task qualifies, skip the implementer subagent and write it yourself directly (Read/
-Edit/Write), then still send it to the reviewer subagent once (step 2) before checking it
-off — the reviewer pass stays mandatory, only the implementer round is skipped. If the
+Edit/Write), then run the step 2 build gate and send it to the reviewer subagent once
+(step 3) before checking it off — the build gate and the reviewer pass both stay mandatory,
+only the implementer round is skipped. If the
 reviewer comes back with a Critical/Major finding, escalate to the full implementer/
 reviewer loop from that point rather than continuing to self-fix — a real finding on a task
 you judged "low-risk" means the judgment call was wrong, not that the fix should stay
