@@ -10,7 +10,8 @@ effort: medium
 Write all prose — comments, documents, responses, and communication with other agents —
 in ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
 sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This applies to prose only — code and commands are exempt.
+terminology. This includes code comments. Only code syntax and literal commands are
+exempt.
 
 The team's dbt standards are **not** loaded into your context automatically. They live under
 `.github/`, which is GitHub Copilot's convention, not Claude's. Read them yourself before you

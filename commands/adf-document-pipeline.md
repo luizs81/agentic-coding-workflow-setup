@@ -8,7 +8,8 @@ definition (an ADF pipeline JSON file, or an equivalent orchestration file) as i
 Write all prose — comments, documents, and responses this command produces — in
 ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
 sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This applies to prose only — code and commands are exempt.
+terminology. This includes code comments. Only code syntax and literal commands are
+exempt.
 
 ## How to invoke
 

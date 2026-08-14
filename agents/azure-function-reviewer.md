@@ -10,7 +10,8 @@ effort: medium
 Write all prose — comments, documents, responses, and communication with other agents —
 in ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
 sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This applies to prose only — code and commands are exempt.
+terminology. This includes code comments. Only code syntax and literal commands are
+exempt.
 
 Sonnet is the default model, for cost. A review can call for deeper judgment than a
 rubric check — for example a security-sensitive change, a subtle concurrency bug, or a
