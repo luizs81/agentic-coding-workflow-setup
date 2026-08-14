@@ -7,11 +7,11 @@ effort: medium
 ---
 ## Writing style
 
-Write all prose — comments, documents, responses, and communication with other agents —
-in ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
-sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This includes code comments. Only code syntax and literal commands are
-exempt.
+Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
+one instruction per sentence, active voice, "must"/"must not"/"can" instead of
+"should"/"may", consistent terminology. This rule covers every kind of prose you
+write — instructions, documents, responses, messages to other agents, and code
+comments. Only code syntax and literal commands are exempt.
 
 Sonnet is the default model, for cost. A review can call for deeper judgment than a
 rubric check — for example a security-sensitive change, a subtle concurrency bug, or a

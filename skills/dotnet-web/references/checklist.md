@@ -6,6 +6,10 @@ Items tagged **[Multi-module]** apply to apps that host more than one module. It
 tagged **[External-write]** apply to apps that write to a system of record outside
 their own database.
 
+Write every item, and any note you add here, in ASD-STE100 (Simplified Technical
+English) style — see the `dotnet-web` skill's "Writing style" section for the full
+rule.
+
 ## Should this exist at all?
 - [ ] Checked whether an existing platform should absorb this as a **module** instead.
       A new app is the exception, not the default

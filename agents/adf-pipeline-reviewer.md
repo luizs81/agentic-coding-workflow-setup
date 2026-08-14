@@ -7,11 +7,11 @@ effort: medium
 ---
 ## Writing style
 
-Write all prose — comments, documents, responses, and communication with other agents —
-in ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
-sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This includes code comments. Only code syntax and literal commands are
-exempt.
+Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
+one instruction per sentence, active voice, "must"/"must not"/"can" instead of
+"should"/"may", consistent terminology. This rule covers every kind of prose you
+write — instructions, documents, responses, messages to other agents, and code
+comments. Only code syntax and literal commands are exempt.
 
 This repo's agent-instructions file (`AGENTS.md`, or `CLAUDE.md` where it hasn't been renamed
 yet) is the authoritative standard. Its "Checklist for New Pipelines" section is your review

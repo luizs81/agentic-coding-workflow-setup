@@ -19,11 +19,11 @@ resilience — are **not** here. Find those in the applicable ADR:
 
 ## Writing style
 
-Write all prose in this document — and all prose agents and skills produce when they
-reference it — in ASD-STE100 (Simplified Technical English) style: short sentences, one
-instruction per sentence, active voice, "must"/"must not"/"can" instead of
-"should"/"may", consistent terminology. This includes code comments. Only code syntax
-and literal commands are exempt.
+Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
+one instruction per sentence, active voice, "must"/"must not"/"can" instead of
+"should"/"may", consistent terminology. This rule covers every kind of prose you
+write — instructions, documents, responses, messages to other agents, and code
+comments. Only code syntax and literal commands are exempt.
 
 ---
 
@@ -61,6 +61,10 @@ and literal commands are exempt.
   new one.
 
 ## Comments are terse, not derivations
+
+This section is the ASD-STE100 "Writing style" rule above, applied to code comments.
+It states the same terseness requirement in more detail for this stack — it does not
+add a second rule.
 
 Write a comment that justifies a non-obvious choice — a culture pick, a retry scope, a
 deviation from an ADR — in 1-2 lines. Stop there. Do not re-derive the reasoning from

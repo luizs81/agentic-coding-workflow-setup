@@ -5,11 +5,11 @@ definition (an ADF pipeline JSON file, or an equivalent orchestration file) as i
 
 ## Writing style
 
-Write all prose — comments, documents, and responses this command produces — in
-ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
-sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
-terminology. This includes code comments. Only code syntax and literal commands are
-exempt.
+Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
+one instruction per sentence, active voice, "must"/"must not"/"can" instead of
+"should"/"may", consistent terminology. This rule covers every kind of prose you
+write — instructions, documents, responses, messages to other agents, and code
+comments. Only code syntax and literal commands are exempt.
 
 ## How to invoke
 

@@ -7,6 +7,9 @@ first** to learn why the architecture is shaped this way at all: why Clean
 Architecture is used over a flat project, why the layering is worth the setup cost, and
 what to revisit as apps grow.
 
+Write every entry in this file in ASD-STE100 (Simplified Technical English) style —
+see ADR-001's "Writing style" section for the full rule.
+
 This file covers only what the ADR states as a rule without justifying the specific
 value. It covers the magic numbers and the two "why not the obvious alternative"
 questions that come up most in review. If this file and the ADR ever disagree, the ADR

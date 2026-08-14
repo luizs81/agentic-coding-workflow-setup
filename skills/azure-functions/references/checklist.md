@@ -5,6 +5,10 @@ Work through this before you generate any files. Do not guess on an unclear item
 Items tagged **[Orchestrated]** apply only to Durable Functions apps. Items tagged
 **[Scheduled]** apply only to timer-triggered apps.
 
+Write every item, and any note you add here, in ASD-STE100 (Simplified Technical
+English) style — see the `azure-functions` skill's "Writing style" section for the
+full rule.
+
 ## Purpose and shape
 - [ ] Function's purpose is clear: what does it load, transform, or produce?
 - [ ] Trigger type identified (timer, HTTP, queue, blob)

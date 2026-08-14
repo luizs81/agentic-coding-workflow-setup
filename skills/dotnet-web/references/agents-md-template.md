@@ -8,6 +8,14 @@ The team-wide standard is **ADR-002 — Internal Web Application Shared Architec
 This file covers the process, this project's instantiation of the standard, and any
 deviation from it. Precedence: this file over ADR-002.
 
+## Writing style
+
+Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
+one instruction per sentence, active voice, "must"/"must not"/"can" instead of
+"should"/"may", consistent terminology. This rule covers every kind of prose you
+write — instructions, documents, responses, messages to other agents, and code
+comments. Only code syntax and literal commands are exempt.
+
 ## 0. Ground rule
 
 The operational pain this app exists to fix:
