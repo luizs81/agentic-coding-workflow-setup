@@ -153,7 +153,8 @@ infrastructure class that makes external calls. Consume Polly via
 
 Default: 3 retry attempts, exponential backoff (2s initial, 2x multiplier, jitter),
 plus a count-based circuit breaker (100% failure ratio, min 5 requests, 30s sampling,
-30s break).
+30s break). **Source of truth: ADR-001 §3.5.** If that table changes, update this
+mirror in the same commit.
 
 Retry count is the one value you can tune per app. Lower it when an attempt is
 expensive or slow (browser automation, large report generation), so a failing run

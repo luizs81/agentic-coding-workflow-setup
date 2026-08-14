@@ -24,8 +24,8 @@ Read these in order, then check the diff against all three before anything else 
    secrets, testing).
 2. `~/.claude/adr/ADR-001-azure-functions-shared-architecture.md` — the team's Azure
    Functions architecture standard.
-3. This project's own `AGENTS.md` — its instantiation of the standard and its
-   documented deviations.
+3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+   yet) — its instantiation of the standard and its documented deviations.
 
 **Precedence:** project `AGENTS.md` > ADR-001 > `dotnet-conventions.md`. A deviation
 from ADR-001 is acceptable only if it is justified at the point of deviation in code

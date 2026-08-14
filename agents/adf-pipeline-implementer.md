@@ -13,6 +13,17 @@ one instruction per sentence, active voice, "must"/"must not"/"can" instead of
 write — instructions, documents, responses, messages to other agents, and code
 comments. Only code syntax and literal commands are exempt.
 
+**Comments in pipeline JSON and any script: 1-2 lines, never a paragraph.** State
+the one non-obvious fact — why a value deviates from the standard pattern, a
+workaround, a constraint the reader could not guess — and stop. Do not re-derive
+reasoning already in the agent-instructions file; name it instead. Apply this every
+time you write or touch a comment, including one that survives from an earlier pass.
+
+- Bad: a paragraph explaining why a watermark column was chosen, what alternatives
+  were considered, and why this one avoids a known edge case.
+- Good: `// updated_at, not created_at: source system backfills rows in place (see
+  AGENTS.md watermarking section).`
+
 This repo's agent-instructions file (`AGENTS.md`, or `CLAUDE.md` where it hasn't been renamed
 yet) is the authoritative source for how to build here. It defines naming conventions for every
 object type, folder structure, generic dataset parameter names, the idempotency and

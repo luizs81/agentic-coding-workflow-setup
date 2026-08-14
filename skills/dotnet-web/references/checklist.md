@@ -79,7 +79,8 @@ rule.
 - [ ] `ILogger<T>` only; handlers open a `BeginScope()` with correlation and entity IDs
 - [ ] `INotificationService` port in Application; delivery non-blocking, never throws
 - [ ] Design-token theme file generated; component library theme overridden from tokens
-- [ ] `DbContext` registered Scoped — never Singleton
+- [ ] `DbContext` registered with `AddDbContextFactory<T>`, never `AddDbContext<T>`
+      (ADR-002 §3.7a; applies to every app, not only Blazor)
 - [ ] Localization missing-key check exists as a test or build step (if bilingual)
 
 ## Repo scaffolding

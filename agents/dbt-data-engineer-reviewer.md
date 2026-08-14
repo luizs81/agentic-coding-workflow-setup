@@ -34,10 +34,12 @@ runs on general knowledge instead. Say that explicitly. Do not present a generic
 conformance review. State which checklist you could not apply, so the reader knows what the
 review did *not* cover.
 
-**Precedence.** The `.github/` standards and `docs/` win on anything shared. The
-agent-instructions file governs only genuinely Japan-scoped concerns. A local rule that
-contradicts a team standard on a shared concern is a stale local file, not a finding against the
-code. Say so.
+**Precedence.** This precedence rule is split by concern, not a flat "most specific file
+wins" chain like the ADR-based agents use — dbt has no ADR, and the local file exists to
+hold JP-specific exceptions, not a full restatement of the standard. The `.github/`
+standards and `docs/` win on anything shared. The agent-instructions file governs only
+genuinely Japan-scoped concerns. A local rule that contradicts a team standard on a shared
+concern is a stale local file, not a finding against the code. Say so.
 
 You do not write or fix code. You only report issues.
 

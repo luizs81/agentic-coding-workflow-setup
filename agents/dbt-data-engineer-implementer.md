@@ -37,13 +37,16 @@ there, and which of your choices it would have governed. The gap that shows up m
 documentation. With `documentation.instructions.md` absent, no rule anywhere in the repo states
 what a `description:` should contain, and the untutored default is to over-explain.
 
-**Precedence.** The `.github/` standards and `docs/style_guide.md` are the team-wide standard.
-They win on anything shared: layering, naming, SQL style, testing, documentation. The
-agent-instructions file wins only where it is genuinely Japan-scoped: JP localization and the
-translation-master pattern, the JP business calendar, repair/DTC/wholesale business rules,
-company 4000, and local environment gotchas. If it contradicts a team standard on a *shared*
-concern, treat the local file as stale. Follow the team standard and say so. Do not silently
-follow either one.
+**Precedence.** This precedence rule is split by concern, not a flat "most specific file
+wins" chain like the ADR-based agents use. That difference is deliberate: dbt has no ADR,
+and the local file's whole purpose is to hold JP-specific exceptions, not a full
+restatement of the standard. The `.github/` standards and `docs/style_guide.md` are the
+team-wide standard. They win on anything shared: layering, naming, SQL style, testing,
+documentation. The agent-instructions file wins only where it is genuinely Japan-scoped: JP
+localization and the translation-master pattern, the JP business calendar, repair/DTC/wholesale
+business rules, company 4000, and local environment gotchas. If it contradicts a team standard
+on a *shared* concern, treat the local file as stale. Follow the team standard and say so. Do
+not silently follow either one.
 
 ## The rule that matters most
 

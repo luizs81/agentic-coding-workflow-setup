@@ -19,8 +19,9 @@ Read these in order, then check the diff against all three before anything else 
    non-negotiables (async, SQL, sort-key allowlisting, secrets).
 2. `~/.claude/adr/ADR-002-web-application-shared-architecture.md` — the team's web
    architecture standard.
-3. This project's own `AGENTS.md` — its instantiation of the standard, its module list,
-   and its documented deviations.
+3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+   yet) — its instantiation of the standard, its module list, and its documented
+   deviations.
 
 **Precedence:** project `AGENTS.md` > ADR-002 > `dotnet-conventions.md`. A deviation from
 ADR-002 is acceptable only if it is justified at the point of deviation in code **and**
@@ -55,8 +56,11 @@ issues.
   for a new required config key with no `appsettings.json` placeholder, or missing from
   the startup fail-fast validation. Check for a real value committed in
   `appsettings.json`.
-- **Lifetimes.** Check for `DbContext` registered as anything other than Scoped. Check
-  for registration outside the composition root.
+- **Lifetimes.** Check for `AddDbContext<T>` instead of `AddDbContextFactory<T>` —
+  ADR-002 §3.7a requires the factory in every application, not only Blazor apps. Check
+  for an adapter that resolves `DbContext` directly by DI instead of injecting
+  `IDbContextFactory<T>` and calling `CreateDbContextAsync` per operation. Check for
+  registration outside the composition root.
 - **Logging.** Check for a use-case handler with no `BeginScope()`. Check for string
   interpolation in a message template. Check for a second logging library. Check for a
   caught exception never logged.

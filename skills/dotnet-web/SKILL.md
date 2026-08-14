@@ -216,12 +216,16 @@ Put all registration in one
 (`AddRazorComponents().AddInteractiveServerComponents()`,
 `AddMicrosoftIdentityWebAppAuthentication()`).
 
-- **Scoped:** `DbContext`, use cases, and anything holding per-request or per-circuit
-  state.
+- **Scoped:** use cases, and anything holding per-request or per-circuit state.
 - **Singleton:** stateless clients — `IHttpClientFactory`-provided `HttpClient`,
   resilience pipelines.
-- **Never register `DbContext` as singleton.** Interactive server circuits are
-  long-lived. A singleton context leaks connections and state across users.
+- **`DbContext`: register with `AddDbContextFactory<T>`, never `AddDbContext<T>`.**
+  This applies to every application, not only Blazor apps. Inject
+  `IDbContextFactory<T>` into adapters and call `CreateDbContextAsync` per operation,
+  disposing it (`await using`) when the operation completes. A scoped context shared
+  across a long-lived Blazor circuit, or across concurrent operations in an MVC/Web
+  API handler, throws on overlapping use because `DbContext` is not thread-safe. See
+  ADR-002 §3.7a.
 
 ---
 
@@ -261,7 +265,8 @@ writes its own retry loop.
 
 Defaults match ADR-001: 3 attempts, exponential backoff with jitter (2s initial, 2x),
 count-based circuit breaker (100% failure ratio, min 5 requests, 30s sampling and
-break).
+break). **Source of truth: ADR-001 §3.5.** If that table changes, update this mirror
+in the same commit.
 
 Two things differ from a Function app, because here someone is waiting:
 

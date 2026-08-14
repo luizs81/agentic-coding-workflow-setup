@@ -13,6 +13,18 @@ one instruction per sentence, active voice, "must"/"must not"/"can" instead of
 write — instructions, documents, responses, messages to other agents, and code
 comments. Only code syntax and literal commands are exempt.
 
+**Code comments: 1-2 lines, never a paragraph.** State the one non-obvious fact a
+comment exists for — a hidden constraint, a workaround, a deviation from ADR-001 —
+and stop. Do not re-derive the reasoning, walk through alternatives you considered,
+or restate what ADR-001 or `dotnet-conventions.md` already says; name the file
+instead. Apply this every time you write or touch a comment, including one that
+survives from an earlier pass.
+
+- Bad: a paragraph explaining why a retry count was lowered, what alternatives were
+  considered, and why this value was chosen over the others.
+- Good: `// Lowered to 1: browser automation call, full backoff too slow (see
+  ADR-001 §3.5).`
+
 Read these in order before you start any task:
 
 1. `~/.claude/standards/dotnet-conventions.md` — testing, blocked-task handling, definition of
@@ -20,9 +32,10 @@ Read these in order before you start any task:
 2. `~/.claude/adr/ADR-001-azure-functions-shared-architecture.md` — the team's Azure
    Functions architecture standard. This is the binding rulebook for structure,
    resilience, telemetry, configuration, and notifications.
-3. This project's own `AGENTS.md` — it states this project's instantiation of the
-   standard and any deliberate deviation from it. If none exists, flag that before
-   you proceed. Do not guess at conventions from scratch.
+3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+   yet) — it states this project's instantiation of the standard and any deliberate
+   deviation from it. If neither file exists, flag that before you proceed. Do not
+   guess at conventions from scratch.
 
 **Precedence when they conflict:** project `AGENTS.md` > ADR-001 > `dotnet-conventions.md`.
 The most specific document wins.

@@ -209,7 +209,11 @@ singleton, and it exposes `ExecuteAsync` overloads with and without a return val
 Consume Polly through `Microsoft.Extensions.Resilience`. Use
 `Microsoft.Extensions.Http.Resilience` for `HttpClient`-specific pipelines.
 
-Default configuration:
+Default configuration. **This table is the single source of truth for these numbers.**
+`skills/azure-functions/SKILL.md` and `skills/dotnet-web/SKILL.md` both mirror this
+table so scaffolding does not need an extra file read. If you change a value here,
+update both mirrors in the same commit — an unchanged mirror silently reintroduces the
+old default the next time either skill scaffolds a project.
 
 | Setting | Retry | Circuit breaker |
 |---|---|---|

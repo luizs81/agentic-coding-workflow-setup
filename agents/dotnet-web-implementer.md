@@ -21,9 +21,10 @@ Read these in order before you start any task:
 2. `~/.claude/adr/ADR-002-web-application-shared-architecture.md` — the team's web
    architecture standard. The binding rulebook for layering, modules, auth,
    configuration, resilience, and telemetry.
-3. This project's own `AGENTS.md` — its instantiation of the standard, its module list,
-   and its documented deviations. If none exists, flag that before you proceed. Do not
-   guess at conventions from scratch.
+3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+   yet) — its instantiation of the standard, its module list, and its documented
+   deviations. If neither file exists, flag that before you proceed. Do not guess at
+   conventions from scratch.
 
 **Precedence when they conflict:** project `AGENTS.md` > ADR-002 >
 `dotnet-conventions.md`. The most specific document wins.
@@ -55,8 +56,13 @@ background or trigger-based execution — that is a different agent's job.
 - **Configuration** binds via `IOptions<T>`. Never call `Environment.GetEnvironmentVariable()`
   anywhere. Give new required keys an empty-string placeholder in `appsettings.json` and
   an entry in the startup fail-fast validation.
-- **`DbContext` is Scoped, never Singleton.** Interactive server circuits are long-lived.
-  A singleton context leaks connections and state across users.
+- **Register `AddDbContextFactory<T>` for every `DbContext`. Never register
+  `AddDbContext<T>`.** This applies to every application, not only Blazor apps. Inject
+  `IDbContextFactory<T>` into adapters and call `CreateDbContextAsync` per operation.
+  `DbContext` is not thread-safe, and a scoped context can be shared across a whole
+  Blazor circuit or across concurrent operations in an MVC/Web API handler — either
+  case throws `InvalidOperationException` or `ObjectDisposedException` on overlapping
+  use. See ADR-002 §3.7a.
 - **Logging** is `ILogger<T>` only. Use-case handlers open a `BeginScope()` carrying
   correlation and entity IDs. Use named placeholders, never string interpolation.
 - **Package versions** live in `Directory.Packages.props`. To add a package, add a

@@ -252,31 +252,36 @@ Never retry chat notification delivery into the critical path. It is non-blockin
 
 ### 3.7a EF Core `DbContext` lifetime and concurrency
 
-`AddDbContext<T>` registers the context as **scoped**. In a Blazor Web App running
-InteractiveServer, the scope is the **circuit**: one instance per connected user, not
-per request. Every component and adapter on that circuit shares the same `DbContext`
-instance for as long as the user stays on the page.
+**Register `AddDbContextFactory<T>` for every `DbContext`, in every application that
+uses EF Core.** Do not register `AddDbContext<T>`. This rule has no exception and does
+not depend on whether the app uses Blazor, MVC, or Web API. Inject `IDbContextFactory<T>`
+into adapters and call `CreateDbContextAsync` per operation. Dispose it (`await using`)
+when the operation completes. This gives each call its own short-lived context instead
+of sharing one scoped instance across a request, a circuit, or a set of concurrent
+operations.
 
-`DbContext` is not thread-safe. It does not allow overlapping operations on one
-instance. Two UI events firing close together (a fast double-click, a timer tick
-landing next to a user action, two components independently refreshing on
-`OnInitializedAsync`) can each start a query on the shared context before the first
-finishes. EF Core detects this and throws — typically `InvalidOperationException: A
+The reason this must hold everywhere, not only where Blazor is in use: `AddDbContext<T>`
+registers the context as **scoped**, and `DbContext` is not thread-safe — it does not
+allow overlapping operations on one instance. In a Blazor Web App running
+InteractiveServer, the scope is the **circuit**: one instance per connected user, not
+per request. Every component and adapter on that circuit would share the same
+`DbContext` instance for as long as the user stays on the page, and two UI events
+firing close together (a fast double-click, a timer tick landing next to a user
+action, two components independently refreshing on `OnInitializedAsync`) can each
+start a query on the shared context before the first finishes.
+
+An MVC or Web API handler carries the same risk whenever it kicks off concurrent
+operations on the same injected context — for example `Task.WhenAll` over adapters
+that all take the scoped instance. The factory pattern removes the hazard in both
+shapes by construction, which is why it is the standard for every app rather than a
+Blazor-specific carve-out.
+
+EF Core detects the violation and throws — typically `InvalidOperationException: A
 second operation was started on this context instance before a previous operation
 completed`. It sometimes surfaces instead as an `ObjectDisposedException` if the
 first operation's context was disposed mid-flight. Either way, it is not a transient
 fault, and retrying the operation without fixing the lifetime issue reproduces it.
 
-- **Register `AddDbContextFactory<T>`, not `AddDbContext<T>`, for any context reachable
-  from Blazor Server/InteractiveServer components.** Inject `IDbContextFactory<T>` into
-  adapters and call `CreateDbContextAsync` per operation. Dispose it (`await using`)
-  when the operation completes. This gives each call its own short-lived context
-  instead of sharing one across the circuit's lifetime.
-- This rule also applies to MVC/Web API contexts if a handler kicks off concurrent
-  operations on the same injected context (for example `Task.WhenAll` over adapters
-  that all take the scoped instance). The factory pattern is the general answer, not
-  Blazor-specific, even though Blazor's per-circuit scope makes the failure far more
-  likely to occur in practice.
 - A UI-side race can compound this problem. A component that re-fires an async
   refresh on stale input (rapid form edits, a debounce racing a page transition) can
   call an adapter method concurrently with itself even with the factory fix in place.
