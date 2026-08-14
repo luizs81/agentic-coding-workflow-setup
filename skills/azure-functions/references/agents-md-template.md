@@ -1,12 +1,13 @@
 # <AppName> — Coding Standards
 
 Scaffolded from the `azure-functions` skill on <date>. This file is the authoritative
-source for how to work in this repo — the `azure-function-implementer` and
+source for how to work in this repo. The `azure-function-implementer` and
 `azure-function-reviewer` subagents treat it as binding. Update it as real conventions
-emerge or diverge from what's here; don't let it go stale.
+emerge or diverge from what's here. Do not let it go stale.
 
 The team-wide standard is ADR-001 (Azure Functions Shared Architecture). This file
-records **this project's** instantiation of it and any deviation, not the general rule.
+records **this project's** instantiation of it and any deviation from it. It does not
+record the general rule.
 
 ## What this function does
 
@@ -16,9 +17,9 @@ queue/blob), whether it uses a Durable orchestrator, who consumes the output>
 ## Architecture
 
 Clean Architecture, four projects: `<AppName>.Domain` → `<AppName>.Application` →
-`<AppName>.Infrastructure` → `<AppName>.Functions`. Dependency direction is one-way
-outward from Domain; Infrastructure references Application because `AddInfrastructure()`
-is the single composition root.
+`<AppName>.Infrastructure` → `<AppName>.Functions`. The dependency direction runs
+one-way, outward from Domain. Infrastructure references Application because
+`AddInfrastructure()` is the single composition root.
 
 ## Domain interfaces
 
@@ -28,8 +29,8 @@ one per external system, plus INotificationService>
 ## External dependencies
 
 <list: Blob Storage, SQL Server, Snowflake, SharePoint, internal APIs — whatever this
-function actually talks to, plus where each one's config lives (Key Vault reference,
-app setting, local.settings.json locally)>
+function actually talks to. For each one, state where its config lives (Key Vault
+reference, app setting, local.settings.json locally)>
 
 ## Configuration
 
@@ -40,8 +41,8 @@ app setting, local.settings.json locally)>
 
 ## Teams notifications
 
-Notify on: <both success and failure / failure only — state which, and if failures
-only, why success is suppressed and where that's documented in code>.
+Notify on: <both success and failure / failure only — state which. If failures only,
+state why success is suppressed and where that is documented in code>.
 
 ## Build and test
 
@@ -54,14 +55,14 @@ dotnet test --filter "Category!=Integration"
 ## Deviations from ADR-001
 
 <any rule this project intentionally departs from, with the reason. Empty is a valid
-answer — but if the code deviates and this section is empty, the code is wrong.>
+answer. But if the code deviates and this section is empty, the code is wrong.>
 
 ## Known gaps / TODOs
 
-<anything deliberately deferred at scaffold time — a stubbed implementation, an
-unconfirmed output sink, a "figure this out before first real run" item>
+<anything deliberately deferred at scaffold time: a stubbed implementation, an
+unconfirmed output sink, or a "figure this out before first real run" item>
 
 ## Open questions log
 
-<append-only — if a decision made here later turns out wrong, add a
-`RESOLVED (date, evidence)` line rather than deleting the original entry>
+<append-only. If a decision made here later turns out wrong, add a
+`RESOLVED (date, evidence)` line. Do not delete the original entry.>

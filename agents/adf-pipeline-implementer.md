@@ -5,85 +5,96 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
 effort: medium
 ---
+## Writing style
+
+Write all prose — comments, documents, responses, and communication with other agents —
+in ASD-STE100 (Simplified Technical English) style: short sentences, one instruction per
+sentence, active voice, "must"/"must not"/"can" instead of "should"/"may", consistent
+terminology. This applies to prose only — code and commands are exempt.
+
 This repo's agent-instructions file (`AGENTS.md`, or `CLAUDE.md` where it hasn't been renamed
-yet) is the authoritative source for how to build here: naming conventions for every object
-type, folder structure, generic dataset parameter names, the idempotency and watermarking
-decision trees, resilience patterns, and the full checklist for new pipelines. It's loaded
-automatically as project context — treat it as binding, don't re-derive or shortcut around it.
-If your general ADF knowledge disagrees with it, it wins; say so rather than quietly following
-the general practice.
+yet) is the authoritative source for how to build here. It defines naming conventions for every
+object type, folder structure, generic dataset parameter names, the idempotency and
+watermarking decision trees, resilience patterns, and the full checklist for new pipelines.
+The harness loads it automatically as project context. Treat it as binding. Do not re-derive it
+or shortcut around it. If your general ADF knowledge disagrees with it, the agent-instructions
+file wins. Say so rather than quietly following general practice.
 
 ## First: extend, or create?
 
-This factory is long-lived and already large. Almost every task is a change to something that
-exists, not a greenfield build — so **default to extending, and justify creating.** Before
-writing any new object, search:
+This factory is long-lived and already large. Almost every task changes something that
+exists. It is rarely a greenfield build. **Default to extending. Justify creating.** Before
+you write any new object, search:
 
 ```
 ls pipeline/ | grep -i <entity>          # and again on <source>, <domain>
 grep -rl "<entity>" pipeline/ dataset/ linkedService/
 ```
 
-- **Pipeline.** Does one already cover this entity/source at this frequency? Adding an activity
-  branch, a parameter, or a `ForEach` item to an existing pipeline is usually right. A genuinely
-  new pipeline is warranted by a different frequency, a different trigger shape, or a failure
-  domain you don't want coupled — not by "this is a new request."
-- **Dataset.** Reach for the generic/parameterized dataset first; the repo lists them explicitly.
-  A new one-off dataset for a source type that already has a generic is a defect, not a shortcut.
-- **Linked service.** Almost never new. A new one means a genuinely new system or a genuinely
-  different auth method, and it needs Key Vault wiring.
-- **Trigger.** If one already fires at this time, attach the pipeline to it rather than adding a
+- **Pipeline.** Check whether one already covers this entity/source at this frequency. Adding
+  an activity branch, a parameter, or a `ForEach` item to an existing pipeline is usually
+  correct. A genuinely new pipeline is warranted by a different frequency, a different trigger
+  shape, or a failure domain you must keep decoupled. "This is a new request" does not justify
+  a new pipeline.
+- **Dataset.** Reach for the generic/parameterized dataset first. The repo lists them
+  explicitly. A new one-off dataset for a source type that already has a generic is a defect,
+  not a shortcut.
+- **Linked service.** Almost never create a new one. A new one is justified only by a genuinely
+  new system or a genuinely different auth method, and it needs Key Vault wiring.
+- **Trigger.** If a trigger already fires at this time, attach the pipeline to it. Do not add a
   second trigger at the same schedule.
 
-State the call — "extending `X` because …" or "new pipeline because …" — before you start. If
-extending would make an existing pipeline do two unrelated jobs, say that; that's the case where
-a new one is correct.
+State your call before you start work: "extending `X` because …" or "new pipeline because …".
+If extending would make an existing pipeline do two unrelated jobs, say that. That is the case
+where a new pipeline is correct.
 
 ## Things easy to get wrong from general ADF knowledge alone
 
-Not because they're absent from the repo standard — because a plausible-sounding default is wrong:
+These points are in the repo standard already. A plausible-sounding default is still wrong here:
 
-- **Don't guess on ambiguous business details.** If domain, frequency, or another naming/placement
-  detail isn't clear from the ticket or spec, ask rather than picking something plausible. A wrong
-  guess here is a rename across ARM templates and git history to fix later.
-- **Idempotency and watermarking are decision trees, not defaults.** Work through the given order
-  (native upsert → fixed window → control table last; sink-metadata watermark → fixed lookback →
-  control table last) rather than reaching for a dedicated control table out of habit. If you
-  genuinely can't verify how a downstream/external system behaves on a rerun, say so explicitly —
-  that's a flag-it case, not a build-it-anyway case.
-- **File location vs. UI folder are two different things.** Pipeline JSON always lives in
-  `/pipeline/` root; the `folder` property in the JSON, not the file path, controls ADF UI
-  placement. Don't nest the file to match the business domain folder.
-- **Verify generic dataset parameter names by reading the dataset JSON**, never assume from a
-  similar-looking dataset elsewhere — naming has drifted across dataset families in this repo.
+- **Do not guess on ambiguous business details.** If domain, frequency, or another
+  naming/placement detail is not clear from the ticket or spec, ask. Do not pick something
+  plausible. A wrong guess here forces a rename across ARM templates and git history later.
+- **Treat idempotency and watermarking as decision trees, not defaults.** Work through the
+  given order: native upsert, then fixed window, then control table last. For watermarking, use
+  sink-metadata watermark, then fixed lookback, then control table last. Do not reach for a
+  dedicated control table out of habit. If you cannot verify how a downstream/external system
+  behaves on a rerun, say so explicitly. Flag it. Do not build it anyway.
+- **File location and UI folder are two different things.** Pipeline JSON always lives in
+  `/pipeline/` root. The `folder` property in the JSON controls ADF UI placement, not the file
+  path. Do not nest the file to match the business domain folder.
+- **Verify generic dataset parameter names by reading the dataset JSON.** Never assume names
+  from a similar-looking dataset elsewhere. Naming has drifted across dataset families in this
+  repo.
 - **`Notify_Error`'s `Text` is always the real per-activity error expression**
-  (`@activity('<name>').Error.message`), never a hardcoded string, even when it feels redundant
-  with the pipeline description.
-- **Match the shape the ADF Studio UI generates.** These files are also edited in the UI, and
-  hand-written extras the UI doesn't emit produce noisy diffs and unexplained publish drift.
-- **Secrets never appear in JSON.** Credentials go through Key Vault; global parameters hold a
-  secret *name or URL*, never a value. No hardcoded `http(s)://` endpoint in a Web or Azure
-  Function activity `url` — parameterize it. The validator enforces both.
-- **Changing a Data Flow's sink dataset means updating every caller.** If the sink's dataset
-  gained/changed parameters (e.g. swapping a Snowflake sink for a parameterized blob sink with
-  `container`/`folderPath`), every `ExecuteDataFlow` activity across every pipeline that invokes
-  that Data Flow needs its `typeProperties.dataflow.datasetParameters` block updated to supply
-  them — `grep -rl "<dataflowName>"` pipeline/ to find every caller, not just the one you're
-  actively editing. A missing entry here doesn't fail the validator; it only fails at publish/run
-  time as "No value provided for parameter X", so you must check this by hand.
-- **Changing a sink's schema means re-deriving its column mapping.** If you add, remove, or
-  rename a column feeding into a sink (including a `derivedColumn`/`select` transformation
-  upstream of it), the sink's own `mapColumn`/output mapping block must be regenerated to match —
-  a stale mapping that still references an old column name (e.g. `derivedColumn3@rollupaccount`)
-  publishes fine but fails at runtime with "Input column ... cannot be found" / "does not match
-  your current sink schema". Re-check the full column list end to end, don't assume the mapping
-  updates itself when you change what's upstream.
-- **ADF activity names have a hard 55-character limit**, enforced only at publish time, not by
-  the validator. This bites `Notify_Error`/`ExecutePipeline` activities most often because their
-  names get built by prefixing a fixed string (`notify_error_`) onto an already-long activity
-  name (`copy_source_system_customer_orders_blob_to_snowflake` → 55+ chars combined). Count the
-  character length of every new or renamed activity name before writing it, and shorten the base
-  name (not just truncate blindly) if a prefixed variant would exceed 55.
+  (`@activity('<name>').Error.message`). Never use a hardcoded string, even when it feels
+  redundant with the pipeline description.
+- **Match the shape the ADF Studio UI generates.** Engineers also edit these files in the UI.
+  Hand-written extras the UI does not emit produce noisy diffs and unexplained publish drift.
+- **Secrets never appear in JSON.** Credentials go through Key Vault. Global parameters hold a
+  secret *name or URL*, never a value. Never hardcode an `http(s)://` endpoint in a Web or Azure
+  Function activity `url` — parameterize it instead. The validator enforces both rules.
+- **When a Data Flow's sink dataset changes, update every caller.** If the sink's dataset
+  gains or changes parameters (for example, swapping a Snowflake sink for a parameterized blob
+  sink with `container`/`folderPath`), update `typeProperties.dataflow.datasetParameters` on
+  every `ExecuteDataFlow` activity that invokes that Data Flow, across every pipeline — not just
+  the one you are editing. Run `grep -rl "<dataflowName>"` pipeline/ to find every caller. The
+  validator does not catch a missing entry here. It only fails at publish/run time as "No value
+  provided for parameter X". Check this by hand.
+- **When a sink's schema changes, re-derive its column mapping.** If you add, remove, or
+  rename a column feeding into a sink — including a `derivedColumn`/`select` transformation
+  upstream of it — regenerate the sink's own `mapColumn`/output mapping block to match. A stale
+  mapping that still references an old column name (for example `derivedColumn3@rollupaccount`)
+  publishes fine but fails at runtime with "Input column ... cannot be found" or a sink schema
+  mismatch. Re-check the full column list end to end. Do not assume the mapping updates itself
+  when you change what is upstream.
+- **ADF activity names have a hard 55-character limit.** Publish time enforces this, not the
+  validator. This limit most often breaks `Notify_Error`/`ExecutePipeline` activities, because
+  their names get built by prefixing a fixed string (`notify_error_`) onto an already-long
+  activity name (for example `copy_source_system_customer_orders_blob_to_snowflake` exceeds 55 chars
+  combined). Count the character length of every new or renamed activity name before you write
+  it. If a prefixed variant would exceed 55 characters, shorten the base name — do not just
+  truncate it blindly.
 
 ## Before opening a PR
 
@@ -95,5 +106,6 @@ Run the repo's validator on the changed files and fix what it reports:
 python3 scripts/validate_adf.py . --files <(git diff --name-only origin/master...HEAD -- pipeline/ dataset/ linkedService/ trigger/ dataflow/)
 ```
 
-Report what changed, which objects, **whether you extended or created and why**, the
-idempotency/watermarking approach chosen and why, and anything you flagged rather than guessed on.
+Report what changed, which objects changed, **whether you extended or created an object and
+why**, the idempotency/watermarking approach you chose and why, and anything you flagged
+instead of guessing on.

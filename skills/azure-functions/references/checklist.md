@@ -1,9 +1,9 @@
 # Pre-flight checklist — new Azure Function project
 
-Work through this before generating any files. Don't guess on an unclear item — ask.
+Work through this before you generate any files. Do not guess on an unclear item. Ask.
 
-Items tagged **[Orchestrated]** apply only to Durable Functions apps, **[Scheduled]**
-only to timer-triggered apps.
+Items tagged **[Orchestrated]** apply only to Durable Functions apps. Items tagged
+**[Scheduled]** apply only to timer-triggered apps.
 
 ## Purpose and shape
 - [ ] Function's purpose is clear: what does it load, transform, or produce?
@@ -28,19 +28,19 @@ only to timer-triggered apps.
 - [ ] `PollyResiliencePipeline` registered singleton and injected into every
       infrastructure class making external calls
 - [ ] Retry count either left at the default 3 or tuned with the reason at the call site
-- [ ] Retry strategy has a `ShouldHandle` predicate scoped to transient faults — no
-      retry on the base `Exception` type; auth/permission/malformed-request failures
+- [ ] Retry strategy has a `ShouldHandle` predicate scoped to transient faults. No
+      retry on the base `Exception` type. Auth/permission/malformed-request failures
       fail on the first attempt
 - [ ] **[Orchestrated]** Durable `RetryPolicy` present at activity level as a backstop
 - [ ] Unit test project scaffolded with the minimum coverage in pillar 3
 - [ ] App Insights configured in **both** `host.json` and `Program.cs`
-- [ ] `functionTimeout` set explicitly in `host.json`, matched to the hosting plan — not
-      left to the plan default, especially where the work being ported has any history of
-      timing out
+- [ ] `functionTimeout` set explicitly in `host.json`, matched to the hosting plan. Do
+      not leave it at the plan default, especially where the ported work has any
+      history of timing out
 - [ ] `ILogger<T>` used exclusively; entry points open a `BeginScope()`
 - [ ] `INotificationService` implemented, non-blocking on failure
-- [ ] Notification scope matches the trigger shape: **[Scheduled]** both success and
-      failure; event-driven / high-frequency, failures only with the suppression
+- [ ] Notification scope matches the trigger shape. **[Scheduled]**: both success and
+      failure. Event-driven / high-frequency: failures only, with the suppression
       documented at the implementation
 
 ## Configuration
@@ -48,9 +48,9 @@ only to timer-triggered apps.
       `public const string SectionName` and safe defaults on all properties
 - [ ] No `Environment.GetEnvironmentVariable()` anywhere, including `Program.cs`
 - [ ] Secrets reach the app as Key Vault references in app settings, not via a
-      `SecretClient` — unless runtime fetch/rotation is genuinely required
-- [ ] `DefaultAzureCredential` against a resource URI; connection string only as the
-      local Azurite fallback
+      `SecretClient`, unless runtime fetch/rotation is genuinely required
+- [ ] `DefaultAzureCredential` used against a resource URI. Connection string used only
+      as the local Azurite fallback
 - [ ] `FUNCTIONS_WORKER_RUNTIME` set to `"dotnet-isolated"` in
       `local.settings.json.template`, every key present, all secrets blank
 
@@ -65,4 +65,4 @@ only to timer-triggered apps.
 - [ ] Every placeholder filled with this project's actual specifics — app name, trigger
       shape, output sink, external dependencies, notification scope
 - [ ] No leftover placeholder text — a half-filled `AGENTS.md` is worse than none,
-      since a subagent will trust it as authoritative
+      because a subagent trusts it as authoritative

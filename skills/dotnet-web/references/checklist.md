@@ -1,13 +1,14 @@
 # Pre-flight checklist — new .NET web project
 
-Work through this before generating any files. Don't guess on an unclear item — ask.
+Work through this before you generate any files. Do not guess on an unclear item. Ask.
 
-Items tagged **[Multi-module]** apply to apps hosting more than one module,
-**[External-write]** to apps writing to a system of record outside their own database.
+Items tagged **[Multi-module]** apply to apps that host more than one module. Items
+tagged **[External-write]** apply to apps that write to a system of record outside
+their own database.
 
 ## Should this exist at all?
-- [ ] Checked whether an existing platform should absorb this as a **module** instead —
-      a new app is the exception, not the default
+- [ ] Checked whether an existing platform should absorb this as a **module** instead.
+      A new app is the exception, not the default
 - [ ] If a new app: stated which of audience, lifecycle, or deployment story genuinely
       differs
 
@@ -19,14 +20,14 @@ Items tagged **[Multi-module]** apply to apps hosting more than one module,
       record) — each becomes a port in Application
 - [ ] Whether the app writes to an external system of record is decided (drives
       **[External-write]** below)
-- [ ] Bilingual-or-not decided — retrofitting means touching every user-facing string
+- [ ] Bilingual-or-not decided. Retrofitting means touching every user-facing string
 
 ## Auth
 - [ ] Entra ID app registration exists, or the user has confirmed they'll create one
 - [ ] Tenant and client ID known, or explicitly deferred with a placeholder marked as
       such in `appsettings.json` and `AGENTS.md`
 - [ ] Admin allowlist identities known and the config key named
-- [ ] Global fallback policy planned — routes opt *out*, never opt *in*
+- [ ] Global fallback policy planned. Routes opt *out*. They never opt *in*
 - [ ] Local dev auth approach decided (real dev-tenant registration vs. stub
       `ICurrentUser`) and will be stated in `AGENTS.md`
 
@@ -37,7 +38,7 @@ Items tagged **[Multi-module]** apply to apps hosting more than one module,
       single-capability app
 - [ ] No Entra ID, EF Core, or Azure SDK reference in Domain or Application `.csproj`
 - [ ] One test project per layer — not a flat `tests/Unit/`
-- [ ] `Directory.Build.props` and `Directory.Packages.props` both at the repo root; no
+- [ ] `Directory.Build.props` and `Directory.Packages.props` both at the repo root. No
       `Version` attributes in `.csproj`
 
 ## Architecture tests
@@ -47,7 +48,7 @@ Items tagged **[Multi-module]** apply to apps hosting more than one module,
 - [ ] The "confirm it bites" instruction is in a comment at the top of the test
 
 ## Configuration and secrets
-- [ ] Everything binds via `IOptions<T>`; no `Environment.GetEnvironmentVariable()`
+- [ ] Everything binds via `IOptions<T>`. No `Environment.GetEnvironmentVariable()`
       anywhere, including `Program.cs`
 - [ ] `appsettings.json` has empty-string placeholders for every key the app expects,
       and no real values
@@ -63,9 +64,9 @@ Items tagged **[Multi-module]** apply to apps hosting more than one module,
 - [ ] Recovery path for routine phase-two failures identified — a job or screen, not a TODO
 
 ## Resilience
-- [ ] Resilience pipeline registered in Infrastructure and injected into adapters — no
+- [ ] Resilience pipeline registered in Infrastructure and injected into adapters. No
       hand-rolled retry loops
-- [ ] Interactive-path calls have an overall timeout and a reduced attempt count; the
+- [ ] Interactive-path calls have an overall timeout and a reduced attempt count. The
       full default is reserved for background work
 - [ ] No retry policy wraps a non-idempotent write. **[External-write]** external writes
       retry through the attempt record's idempotency key, not a bare retry
@@ -89,5 +90,5 @@ Items tagged **[Multi-module]** apply to apps hosting more than one module,
       auth scope, local dev decision, external dependencies
 - [ ] Deviations section either lists real deviations with reasons, or is empty because
       there are none
-- [ ] No leftover placeholder text — a half-filled `AGENTS.md` is worse than none, since
-      a subagent will trust it as authoritative
+- [ ] No leftover placeholder text. A half-filled `AGENTS.md` is worse than none,
+      because a subagent trusts it as authoritative
