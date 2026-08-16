@@ -20,11 +20,28 @@ description: >
 
 ## Writing style
 
-Write all prose in ASD-STE100 (Simplified Technical English) style: short sentences,
-one instruction per sentence, active voice, "must"/"must not"/"can" instead of
-"should"/"may", consistent terminology. This rule covers every kind of prose you
-write — instructions, documents, responses, messages to other agents, and code
-comments. Only code syntax and literal commands are exempt.
+Write all prose in ASD-STE100 (Simplified Technical English) style. Four rules are
+mechanical, and a script checks them:
+
+1. Do not use "should", "may", or "might". Use "must", "must not", or "can".
+2. Keep every sentence to 25 words or fewer.
+3. Keep every paragraph to 4 sentences or fewer.
+4. Do not use an em-dash aside. Write two sentences instead.
+
+Check any markdown file you write or edit before you report done:
+
+```
+python3 ~/.claude/standards/check-style.py <changed .md files>
+```
+
+Fix every ERROR. Fix each WARN unless splitting the sentence loses meaning.
+
+The script cannot check the rest of the style. Also write in active voice. Also put one
+instruction in each sentence. Also use the same term for the same thing every time.
+
+This rule covers every kind of prose you write. It covers instructions, documents,
+responses, messages to other agents, and code comments. Only code syntax and literal
+commands are exempt.
 
 This skill encodes the architecture standard for every Azure Function application in
 this team. The authoritative source is
