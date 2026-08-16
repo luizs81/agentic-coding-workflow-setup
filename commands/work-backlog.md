@@ -146,7 +146,33 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    if the reviewer was clean on the first pass). Add `Self-fixed: yes` if step 5's self-fix
    path was used for the trailing finding instead of spawning another round.
 
-8. **Move to the next unchecked task** and repeat from step 1.
+8. **Log the findings.** Append every Critical and Major finding this task raised to the
+   findings log, one line each: `<task name> | SEVERITY | file | the finding`. The log
+   lives at `.work-backlog-findings.md`, beside the backlog file. Create it if it is
+   absent.
+
+   The final step of this command looks across every finding in the run. Your own context
+   is not a safe place to keep them. A long run can compact, and single-task mode starts
+   each task in a new session. The log is the only durable record.
+
+9. **Move to the next unchecked task** and repeat from step 1.
+
+## Single-task mode
+
+A caller can ask you to work exactly one task and then stop. The driver script
+`scripts/run-backlog.sh` does this, so each task gets a clean context.
+
+In that mode:
+
+- Work only the first unchecked task. Run its full loop, steps 1 through 8.
+- Stop after the commit. Do not start the next task.
+- Do not run the standards feedback pass. The driver runs it once at the end.
+- Report in under 200 words. Name the task, the review round count, and any escalation.
+
+Everything the next session needs is already on disk. The checkbox records what is done.
+The commit records the change. The findings log records what review caught.
+
+Do not write a handoff note.
 
 ## Between tasks
 
@@ -189,10 +215,16 @@ across the run (grouped, not listed one at a time).
 
 ## After the backlog is exhausted: feed findings back into the standard
 
-Look back across every Critical/Major finding raised during the run, not just the final
-task's. The same class of issue can be flagged on more than one task, or can be the kind of
-mistake likely to recur on future backlogs. Either case is a gap in the standard or in the
-implementer's own instructions, not just a diff to fix and move past.
+Read `.work-backlog-findings.md`. Step 8 logged every Critical and Major finding there.
+
+Use the log, not your memory of the run. The log is complete. Your context is not.
+
+Look across every finding in the log, not just the final task's. The same class of issue
+can be flagged on more than one task. It can also be the kind of mistake likely to recur
+on future backlogs. Either case is a gap in the standard or in the implementer's own
+instructions, not just a diff to fix and move past.
+
+Delete the log once the user accepts or rejects your proposed edits.
 
 For each recurring finding:
 
