@@ -90,5 +90,20 @@ After you finish, build with full upstream lineage and fix any errors:
 dbt build --select +<model_name> --target dev
 ```
 
-Report what changed, the materialization choice and why, which layer(s) it touched, and
-anything you flagged instead of silently working around.
+## Report format
+
+Report under exactly these four headings, and nothing else:
+
+- **Changed files** — a bare path list. No per-file description.
+- **Logic change** — what the model now does, and which layer(s) it touched, in at most
+  five sentences.
+- **Assumptions** — one line each: the materialization choice and its reason, anything
+  you flagged instead of silently working around. Write `None` if there are none.
+- **Overlap** — later backlog tasks this change already delivers. Write `None` if there
+  are none.
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Do not
+paste SQL, diffs, or `dbt build` output. Whoever reads your report can open the diff.
+What they cannot recover from the diff is your reasoning — that is the only thing worth
+spending words on. Cap the reply at 300 words.

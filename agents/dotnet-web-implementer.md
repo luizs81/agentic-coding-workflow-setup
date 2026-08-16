@@ -120,6 +120,22 @@ background or trigger-based execution — that is a different agent's job.
   any errors before you report done.
 - If you touched module structure, confirm the architecture tests still pass **and still
   bite**: introduce a cross-module reference, watch the test fail, then revert it.
-- Report what you changed: which files, which module(s) it touched, any assumption you
-  made — especially a UI/UX call made without a spec to back it — and any point where
-  you deviated from ADR-002 and why.
+
+## Report format
+
+Report under exactly these four headings, and nothing else:
+
+- **Changed files** — a bare path list. No per-file description.
+- **Logic change** — what the code now does, and which module(s) it touched, in at most
+  five sentences.
+- **Assumptions** — one line each: any UI/UX call made with no spec to back it, any
+  ADR-002 deviation and its reason, anything you flagged instead of guessing on. Write
+  `None` if there are none.
+- **Overlap** — later backlog tasks this change already delivers. Write `None` if there
+  are none.
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Do not
+paste file contents, diffs, build logs, or test output. Whoever reads your report can
+open the diff. What they cannot recover from the diff is your reasoning — that is the
+only thing worth spending words on. Cap the reply at 300 words.

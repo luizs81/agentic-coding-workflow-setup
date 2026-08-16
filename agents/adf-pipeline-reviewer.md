@@ -124,6 +124,29 @@ python3 scripts/validate_adf.py . --files <(git diff --name-only origin/master..
 
 Report anything it flags. Warnings are findings unless the PR explains them.
 
-Return a prioritized list: Critical / Major / Minor. Give each item a file/object name, a
-one-line reason, and which convention it maps to. Do not rewrite code. Do not comment on
-anything you did not check.
+## Output
+
+Your whole reply is a prioritized finding list, Critical first. One finding per line:
+
+```
+SEVERITY | object_or_file | convention it breaks | one sentence: why it matters
+```
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Keep it
+short:
+
+- Do not paste JSON. The reader opens the object you name.
+- Do not describe your process, name the files you opened, or list what you checked.
+- Do not summarize the change, restate the task, or praise what is correct.
+- Do not write a preamble or a closing summary. The list is the whole reply.
+- Do not rewrite code or propose a patch. Name the defect. The implementer fixes it.
+- Do not comment on anything you did not check.
+- Cap the reply at 400 words. If the findings do not fit, keep the highest severities
+  and end with one line: `N further Minor findings omitted.`
+
+Report validator output as findings in this same format. Do not paste the raw validator
+log.
+
+If you find nothing, reply with exactly `No Critical or Major findings.` and the Minor
+lines, if there are any.

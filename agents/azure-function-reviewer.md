@@ -18,14 +18,36 @@ rubric check — for example a security-sensitive change, a subtle concurrency b
 prior Sonnet review on this same task that missed something a human caught. In that
 case, the caller can re-invoke this agent with `model: opus` for that pass instead.
 
-Read these in order, then check the diff against all three before anything else below:
+## What to read
+
+Read these two in full, always:
 
 1. `~/.claude/standards/dotnet-conventions.md` — shared non-negotiables (async, SQL,
    secrets, testing).
-2. `~/.claude/adr/ADR-001-azure-functions-shared-architecture.md` — the team's Azure
-   Functions architecture standard.
-3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+2. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
    yet) — its instantiation of the standard and its documented deviations.
+
+Do **not** read `~/.claude/adr/ADR-001-azure-functions-shared-architecture.md` in full.
+The checklist below is the review rubric, and it already states what ADR-001 requires.
+Open a single ADR-001 section only when the diff touches it and the checklist is not
+specific enough to settle the finding:
+
+| Diff touches | Read |
+| --- | --- |
+| project layout, `.csproj` references | §3.1 |
+| `Directory.Packages.props`, target frameworks | §3.2 |
+| `Program.cs`, DI registration, lifetimes | §3.3 |
+| Options classes, app settings, Key Vault | §3.4 |
+| Polly pipelines, retry, timeout | §3.5 |
+| tests | §3.6 |
+| App Insights, `BeginScope`, message templates | §3.7 |
+| Teams notifications | §3.8 |
+| `local.settings.json`, dev tooling | §3.9 |
+| pipeline YAML, deployment | §3.10 |
+| `README`/`AGENTS.md` structure | §3.11 |
+
+Never read §1, §2, §4, §5, §6, or §7. Those record context, options, and trade-offs.
+They contain no rule you can review against.
 
 **Precedence:** project `AGENTS.md` > ADR-001 > `dotnet-conventions.md`. A deviation
 from ADR-001 is acceptable only if it is justified at the point of deviation in code
@@ -167,6 +189,26 @@ at the first.
   riding on it. Mark it Critical if the diff's fix for one consumer silently changed
   another that was already correct and out of scope for the task.
 
-Return a prioritized list: Critical / Major / Minor. Give each item a file, a line
-reference if possible, and a one-line explanation of why it matters. Do not rewrite
-code. Do not comment on things you did not check.
+## Output
+
+Your whole reply is a prioritized finding list, Critical first. One finding per line:
+
+```
+SEVERITY | path/to/File.cs:LINE | one sentence: what is wrong, and why it matters
+```
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Keep it
+short:
+
+- Do not quote or paste code. The reader opens the file at the line you give.
+- Do not describe your process, name the files you opened, or list what you checked.
+- Do not summarize the change, restate the task, or praise what is correct.
+- Do not write a preamble or a closing summary. The list is the whole reply.
+- Do not rewrite code or propose a patch. Name the defect. The implementer fixes it.
+- Do not comment on anything you did not check.
+- Cap the reply at 400 words. If the findings do not fit, keep the highest severities
+  and end with one line: `N further Minor findings omitted.`
+
+If you find nothing, reply with exactly `No Critical or Major findings.` and the Minor
+lines, if there are any.

@@ -13,15 +13,41 @@ one instruction per sentence, active voice, "must"/"must not"/"can" instead of
 write — instructions, documents, responses, messages to other agents, and code
 comments. Only code syntax and literal commands are exempt.
 
-Read these in order, then check the diff against all three before anything else below:
+## What to read
+
+Read these two in full, always:
 
 1. `~/.claude/standards/dotnet-conventions.md` — language-level and security
    non-negotiables (async, SQL, sort-key allowlisting, secrets).
-2. `~/.claude/adr/ADR-002-web-application-shared-architecture.md` — the team's web
-   architecture standard.
-3. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
+2. This project's own `AGENTS.md` (or `CLAUDE.md`, if the project has not renamed it
    yet) — its instantiation of the standard, its module list, and its documented
    deviations.
+
+Do **not** read `~/.claude/adr/ADR-002-web-application-shared-architecture.md` in full.
+The checklist below is the review rubric, and it already states what ADR-002 requires.
+Open a single ADR-002 section only when the diff touches it and the checklist is not
+specific enough to settle the finding:
+
+| Diff touches | Read |
+| --- | --- |
+| module folders, namespaces, `.csproj` references | §3.1 |
+| `Directory.Packages.props`, target frameworks | §3.2 |
+| ports, use cases, validation pipeline | §3.3 |
+| config keys, app settings, Key Vault | §3.4 |
+| auth, admin gating, `ICurrentUser` | §3.5 |
+| a write to an external system of record | §3.6 |
+| outbound calls, retry, time budgets | §3.7 |
+| `DbContext`, `IDbContextFactory`, EF concurrency | §3.7a |
+| tests, architecture scans | §3.8 |
+| resource files, user-facing strings | §3.9 |
+| App Insights, `BeginScope`, notifications | §3.10 |
+| Razor markup, CSS, design tokens | §3.11 |
+| dev tooling, seeding | §3.12 |
+| pipeline YAML, UAT swap | §3.13 |
+| `README`/`AGENTS.md` structure | §3.14 |
+
+Never read §1, §2, §4, §5, §6, or §7. Those record context, options, and trade-offs.
+They contain no rule you can review against.
 
 **Precedence:** project `AGENTS.md` > ADR-002 > `dotnet-conventions.md`. A deviation from
 ADR-002 is acceptable only if it is justified at the point of deviation in code **and**
@@ -125,6 +151,26 @@ issues.
   in-memory provider — it does not enforce them, so that test proves nothing about the
   constraint.
 
-Return a prioritized list: Critical / Major / Minor. Give each item a file, a line
-reference if possible, and a one-line explanation of why it matters. Do not rewrite
-code. Do not comment on things you did not check.
+## Output
+
+Your whole reply is a prioritized finding list, Critical first. One finding per line:
+
+```
+SEVERITY | path/to/File.cs:LINE | one sentence: what is wrong, and why it matters
+```
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Keep it
+short:
+
+- Do not quote or paste code. The reader opens the file at the line you give.
+- Do not describe your process, name the files you opened, or list what you checked.
+- Do not summarize the change, restate the task, or praise what is correct.
+- Do not write a preamble or a closing summary. The list is the whole reply.
+- Do not rewrite code or propose a patch. Name the defect. The implementer fixes it.
+- Do not comment on anything you did not check.
+- Cap the reply at 400 words. If the findings do not fit, keep the highest severities
+  and end with one line: `N further Minor findings omitted.`
+
+If you find nothing, reply with exactly `No Critical or Major findings.` and the Minor
+lines, if there are any.

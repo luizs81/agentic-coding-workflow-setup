@@ -54,6 +54,12 @@ For each unchecked `- [ ]` task in the backlog, top to bottom:
    compiles or builds. Use whatever command fits the stack (`dbt compile --select <model>`,
    `dotnet build`, and so on). A task does not reach review until this gate passes.
 
+   Always truncate the build command's output — for example
+   `dotnet build 2>&1 | tail -30`. A passing build's log is worthless the moment the gate
+   passes, but it stays in your context for the rest of the run and is re-sent on every
+   later turn. If the tail does not show the cause of a failure, re-run and grep for the
+   error instead of dropping the whole log into context.
+
    Do not treat the implementer's report as evidence of this. An implementer can report
    success on code that was never parsed. This gate exists because that happened once: a
    dbt model was written, reviewed clean, checked off, and committed, and it did not

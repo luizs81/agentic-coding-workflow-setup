@@ -118,6 +118,20 @@ Run the repo's validator on the changed files and fix what it reports:
 python3 scripts/validate_adf.py . --files <(git diff --name-only origin/master...HEAD -- pipeline/ dataset/ linkedService/ trigger/ dataflow/)
 ```
 
-Report what changed, which objects changed, **whether you extended or created an object and
-why**, the idempotency/watermarking approach you chose and why, and anything you flagged
-instead of guessing on.
+## Report format
+
+Report under exactly these four headings, and nothing else:
+
+- **Changed objects** — a bare list of object names and paths. No per-object description.
+- **Logic change** — what the pipeline now does, in at most five sentences.
+- **Assumptions** — one line each: **whether you extended or created an object and why**,
+  the idempotency/watermarking approach and its reason, anything you flagged instead of
+  guessing on. Write `None` if there are none.
+- **Overlap** — later backlog tasks this change already delivers. Write `None` if there
+  are none.
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Do not
+paste JSON, diffs, or validator output. Whoever reads your report can open the diff. What
+they cannot recover from the diff is your reasoning — that is the only thing worth
+spending words on. Cap the reply at 300 words.

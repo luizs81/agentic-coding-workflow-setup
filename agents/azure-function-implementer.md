@@ -197,8 +197,20 @@ work against them before you report done.
   host from **inside** the Functions project directory. The SDK resolves its working
   directory from the shell's cwd, not from `--project`, so `func start` from the repo
   root silently fails to find `host.json`.
-- Report what you changed: which files, which trigger/binding types are involved, any
-  assumption you made about retry behavior or timeout budget, and any point where you
-  deviated from ADR-001 and why. Report it as a list of changed files plus a summary of
-  the logic change. Do not paste file contents back. Whoever reads your report can open
-  the diff. What they cannot recover from it is your reasoning.
+## Report format
+
+Report under exactly these four headings, and nothing else:
+
+- **Changed files** — a bare path list. No per-file description.
+- **Logic change** — what the code now does, in at most five sentences.
+- **Assumptions** — one line each: retry behavior, timeout budget, any ADR-001 deviation
+  and its reason, anything you flagged instead of guessing on. Write `None` if there are
+  none.
+- **Overlap** — later backlog tasks this change already delivers. Write `None` if there
+  are none.
+
+Your reply goes into a coordinator's transcript. That transcript is re-sent to the model
+on every later turn of the run, so every word you add is paid for many times. Do not
+paste file contents, diffs, build logs, or test output. Whoever reads your report can
+open the diff. What they cannot recover from the diff is your reasoning — that is the
+only thing worth spending words on. Cap the reply at 300 words.
