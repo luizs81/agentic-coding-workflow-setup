@@ -112,6 +112,9 @@ background or trigger-based execution — that is a different agent's job.
   *before* the first external write, with an idempotency key that is a hash of the
   normalized payload. If the feature spec has a failure matrix, implement every row of
   it — including the recovery path for routine phase-two failures.
+- **When composing a resilience pipeline** (retry, timeout, circuit breaker), confirm
+  the library's execution order — outer-to-inner or inner-to-outer — from its docs, not
+  from assumption. Prefer a test that proves the overall time budget holds end-to-end.
 
 ## UI correctness
 
@@ -137,6 +140,12 @@ background or trigger-based execution — that is a different agent's job.
   any errors before you report done.
 - If you touched module structure, confirm the architecture tests still pass **and still
   bite**: introduce a cross-module reference, watch the test fail, then revert it.
+- Add at least one test that exercises the real adapter's own logic (query/parameter
+  construction, mapping), not only its fake/test-double. A fake proves the port's
+  contract; it proves nothing about the adapter behind it.
+- After renaming or deleting a type, column, file, or migration, `grep` the whole repo
+  — docs, this project's own `AGENTS.md`, other migrations — for the old name. A rename
+  is not done until every reference agrees.
 
 ## Report format
 
