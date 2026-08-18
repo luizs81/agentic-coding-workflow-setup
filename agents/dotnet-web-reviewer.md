@@ -167,6 +167,12 @@ issues.
   throwing" rather than behaviour. Check for persistence constraints asserted against an
   in-memory provider — it does not enforce them, so that test proves nothing about the
   constraint.
+- **Runtime proof, not build proof.** A passing `dotnet build` does not prove a Razor
+  component parameter exists. An unknown parameter name binds at compile time and
+  throws only at render. If the diff touches a Razor component, a route, or startup/DI
+  wiring, start the app and request every touched route yourself. Flag as Critical if
+  the implementer's report shows no equivalent evidence, and you find a route broken by
+  the same class of defect.
 
 ## Writing style (mechanical check, run on every diff)
 

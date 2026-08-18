@@ -138,6 +138,14 @@ background or trigger-based execution — that is a different agent's job.
 
 - Run `dotnet build` and `dotnet test` (or the project's actual test command) and fix
   any errors before you report done.
+- **Build success does not prove the app runs.** A Razor component accepts an unknown
+  parameter name at compile time. It throws only at render time.
+  Start the app in the background. Request every route your change added or touched.
+  Request at least one authenticated route and one anonymous route, if both exist.
+  Confirm no unhandled exception appears in the log or the response. Stop the app
+  afterward. Do this for every change that touches a Razor component, a route, or
+  startup/DI wiring. Skip it only for a change with no runtime surface, such as a pure
+  Domain or Application unit with no new wiring.
 - If you touched module structure, confirm the architecture tests still pass **and still
   bite**: introduce a cross-module reference, watch the test fail, then revert it.
 - Add at least one test that exercises the real adapter's own logic (query/parameter

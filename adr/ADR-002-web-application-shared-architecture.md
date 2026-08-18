@@ -391,6 +391,27 @@ Consistent with ADR-001 §3.7–3.8:
   database in a local container **matching the production engine**, not a different
   local engine. Dialect and constraint behaviour must be identical between dev and
   prod, which is the whole reason §3.8 asserts constraints against a real database.
+- **Publish the container's port to `127.0.0.1`, not the container runtime's own
+  address.** Apple's `container` CLI assigns each container its own routable IP
+  (e.g. `192.168.64.x`) rather than mapping to localhost the way Docker Desktop does.
+  Always start the container with `-p 127.0.0.1:<port>:<port>` and point the app's
+  connection string at `localhost`/`127.0.0.1`. This matters beyond convenience: any
+  app-side "is this a local database?" check (used to gate dev-only auto-migrate/seed
+  behaviour, so a stray connection string can never auto-migrate a shared server) can
+  only recognize a small, fixed set of loopback hostnames. A container-runtime IP falls
+  outside that set and gets silently classified as remote, which skips migration/seed
+  without any error — the app still starts, but every query then fails with "Invalid
+  object name" against an empty database. Do not "fix" this by widening the loopback
+  check to accept private-IP ranges; fix it by publishing to loopback instead, so every
+  project shares the same runbook.
+- Every project's local-db script/README must follow the same runbook shape: a
+  `start`/`stop`/`reset`/`status` script (or equivalent README steps) that (1) starts
+  the container with its port published to `127.0.0.1`, (2) prints the exact
+  `dotnet user-secrets set "ConnectionStrings:<Name>" "..."` command using that
+  `localhost` address, and (3) documents how to tell a stopped container from a
+  never-created one (`container list` alone hides stopped containers — use
+  `container list --all`/`-a`, or the container-name-already-exists error is the signal
+  it exists but is stopped, not that something is broken).
 
 ### 3.13 CI/CD
 
