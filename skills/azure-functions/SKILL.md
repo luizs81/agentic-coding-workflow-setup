@@ -278,13 +278,35 @@ Instantiate `SecretClient` directly only when a secret must be fetched or rotate
 runtime.
 
 **Identity:** reach Azure resources with `DefaultAzureCredential` against a resource
-URI. Use a connection string only as a fallback for local Azurite development:
+URI. Use a connection string for local development only, such as `UseDevelopmentStorage=true` for Azurite. Never set it in Azure.
+
+For Blob Storage, bind `StorageOptions` with `AccountUri`, optional `ConnectionString` and `ContainerName`. Build the container client with this method in the Blob adapter:
 
 ```csharp
-var client = !string.IsNullOrWhiteSpace(opts.ConnectionString)
-    ? new BlobServiceClient(opts.ConnectionString)
-    : new BlobServiceClient(new Uri(opts.AccountUri), new DefaultAzureCredential());
+private static BlobContainerClient CreateContainer(StorageOptions options)
+{
+    // Polly is the only retry layer, so the SDK retries stay off.
+    var clientOptions = new BlobClientOptions { Retry = { MaxRetries = 0, Mode = RetryMode.Fixed } };
+
+    BlobServiceClient service;
+    if (!string.IsNullOrEmpty(options.ConnectionString))
+    {
+        service = new BlobServiceClient(options.ConnectionString, clientOptions);
+    }
+    else if (Uri.TryCreate(options.AccountUri, UriKind.Absolute, out var accountUri))
+    {
+        service = new BlobServiceClient(accountUri, new DefaultAzureCredential(), clientOptions);
+    }
+    else
+    {
+        throw new InvalidOperationException("App setting Storage__AccountUri is missing or not a valid URL.");
+    }
+
+    return service.GetBlobContainerClient(options.ContainerName);
+}
 ```
+
+Create the client in a `Lazy<BlobContainerClient>`, so a missing setting fails on first use with a clear message. A set connection string wins over `AccountUri`. The reference implementation is the WorkdayJobcan function.
 
 In `local.settings.json.template`, set `FUNCTIONS_WORKER_RUNTIME` to `"dotnet-isolated"`.
 Do not use `"python"` or `"dotnet"`. Include every key the app reads. Blank all

@@ -54,9 +54,24 @@ full rule.
 - [ ] Secrets reach the app as Key Vault references in app settings, not via a
       `SecretClient`, unless runtime fetch/rotation is genuinely required
 - [ ] `DefaultAzureCredential` used against a resource URI. Connection string used only
-      as the local Azurite fallback
+      for local development, never set in Azure
 - [ ] `FUNCTIONS_WORKER_RUNTIME` set to `"dotnet-isolated"` in
       `local.settings.json.template`, every key present, all secrets blank
+- [ ] **[Snowflake]** Auth uses a PAT. Options are separate (`Account`, `User`, `Token`,
+      `Warehouse`, `Role`). Only `Token` is a secret, a Key Vault reference. The code
+      builds the connection string with `password={Token}`
+- [ ] Each app reads only the Key Vault of its own environment. The team vaults use
+      access policies, so grant the app identity secret `get`
+
+## Networking
+- [ ] **[Snowflake or IP allowlist]** The app has regional VNet integration with outbound
+      traffic routed through the VNet. Without it, Snowflake rejects the run
+- [ ] A Flex app uses a subnet delegated to `Microsoft.App/environments`. A Premium
+      subnet (`Microsoft.Web/serverFarms`) cannot be reused
+- [ ] The subnet has the NAT gateway, network security group, and route table of the
+      team VNet. See ADR-001 §3.12
+- [ ] `vnetSubnetId` is set in the infrastructure parameter files, and the subnet is
+      named in the project `AGENTS.md`
 
 ## Repo scaffolding
 - [ ] `dev-start.sh` at repo root

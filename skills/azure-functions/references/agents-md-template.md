@@ -55,7 +55,8 @@ one per external system, plus INotificationService>
 
 <list: Blob Storage, SQL Server, Snowflake, SharePoint, internal APIs — whatever this
 function actually talks to. For each one, state where its config lives (Key Vault
-reference, app setting, local.settings.json locally)>
+reference, app setting, local.settings.json locally). For Snowflake, state the PAT
+options and the VNet subnet the app uses (ADR-001 §3.4 and §3.12)>
 
 ## Configuration
 

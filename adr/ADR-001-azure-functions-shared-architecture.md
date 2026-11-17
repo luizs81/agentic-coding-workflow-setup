@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Accepted |
 | **Date** | April 2026 |
-| **Last revised** | 2026-08-02 |
+| **Last revised** | 2026-11-15 |
 | **Deciders** | Engineering team |
 | **Scope** | All Azure Function applications owned by the team |
 | **Supersedes** | N/A (first formal ADR for Azure Functions) |
@@ -207,6 +207,21 @@ requires the **Key Vault Secrets User** role on the vault. This is the default
 approach: it keeps `Azure.Security.KeyVault.Secrets` out of the dependency graph
 entirely. Instantiate `SecretClient` directly only when a secret must be fetched or
 rotated at runtime rather than at startup.
+
+**Key Vault access in this team.** The team vaults use access policies, not RBAC. Grant
+the app identity the secret `get` permission, not a role assignment. Each app reads only
+the vault of its own environment. Never grant a dev app access to a production vault.
+
+**Snowflake.** Snowflake no longer accepts basic password authentication. Use a
+Programmatic Access Token (PAT). Bind the connection as separate options: `Account`,
+`User`, `Token`, `Warehouse`, `Role`, and optional `Database` and `Schema`.
+
+Only `Token` is a secret. Surface it as a Key Vault reference to the PAT secret. Build
+the connection string in code and put the token in the password slot
+(`password={Token}`). The driver needs no authenticator keyword.
+
+Do not store a whole connection string in a secret. Then a token rotation changes one
+value. The reference implementation is `SnowflakeOptions` in the Giveaway tool.
 
 **Identity:** reach Azure resources with `DefaultAzureCredential` against a resource
 URI. Accept a connection string only as a fallback for local development against
@@ -412,6 +427,38 @@ repo. Secrets must reach the pipeline through variable groups, never inline.
 Every repo carries a `README.md` (what the app does, how to run it) with a section
 linking to this ADR, and an `AGENTS.md` (solution layout, configuration table,
 build/test commands, known local-dev gotchas).
+
+### 3.12 Networking and VNet integration
+
+Snowflake accepts only known IP addresses. A function app without VNet integration
+uses changing Azure IP addresses, so Snowflake rejects the connection. The error reads
+`Incoming request with IP/Token ... is not allowed to access Snowflake`. Retries cannot
+fix it.
+
+Every function that calls Snowflake, or any service with an IP allowlist, needs
+regional VNet integration. Route application traffic through the VNet ("Outbound
+internet traffic" on). Keep the other routing options off (content share, image pull,
+backup and restore).
+
+- **VNet.** `JPESTVNINF101` in `JPESTRGNET101`, subscription `Pat-Production`. The NAT
+  gateway `JPESTNGINF101` gives the fixed outbound IP that Snowflake allows. The subnet
+  also needs the network security group `JPESTNSAPP101` and the route table
+  `JPESTRTDR101`.
+- **Delegation.** A Flex Consumption app needs a subnet delegated to
+  `Microsoft.App/environments`. A Premium app needs `Microsoft.Web/serverFarms`. One
+  subnet cannot have both. Do not reuse `JPESTSNAPP102`, which serves Premium apps.
+- **Current subnet.** `JPESTSNAPP103` (`10.130.7.0/26`) serves the Flex apps of dev and
+  prod. Dev uses the production VNet because a request to the Infra team takes too
+  long. Dev traffic therefore leaves through the production NAT gateway. Revisit this
+  when a dev subnet with its own NAT gateway exists.
+- **How to set it.** Set `vnetSubnetId` in the Bicep parameter files. Do not set it by
+  hand only, because a later deployment can remove a manual setting.
+- **Rights.** The deploying identity needs the subnet `join/action` right. The providers
+  `Microsoft.App` and `Microsoft.Web` must be registered in the VNet subscription.
+
+Record the subnet in the app's `AGENTS.md`. A function that reaches Snowflake with no
+VNet integration is a review blocker. The full steps and code are on the Confluence
+page "Azure Function Infrastructure as Code (Bicep)" in the Japan Technology space.
 
 ## 4. Options considered
 
