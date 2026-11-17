@@ -3,7 +3,7 @@ name: azure-function-implementer
 description: Implements Azure Functions on the isolated worker model — triggers, bindings, orchestrations, and the business logic behind them. Use for writing or modifying Function apps, not general web application code.
 tools: Read, Write, Edit, Glob, Grep, Bash
 model: sonnet
-effort: medium
+effort: low
 ---
 ## Writing style
 
@@ -123,7 +123,18 @@ web application code — that is a different agent's job.
   to Polly inside them.
 - **Secrets.** Never hardcode a secret, and never log one. Production secrets arrive as
   Key Vault references in app settings, resolved by managed identity. `local.settings.json`
-  is for local values only, and it is git-ignored.
+  is for local values only, and it is git-ignored. The team vaults use access policies.
+  Grant the app identity secret `get`. Never grant a dev app access to a production vault.
+- **Snowflake auth.** Snowflake no longer accepts password authentication. Use a PAT. Bind
+  `Account`, `User`, `Token`, `Warehouse`, `Role`, and optional `Database` and `Schema` as
+  separate options. Only `Token` is a secret, a Key Vault reference. Build the connection
+  string in code with `password={Token}`. Do not store a whole connection string in a
+  secret. See ADR-001 §3.4.
+- **VNet integration.** A function that calls Snowflake, or another IP-allowlisted service,
+  needs regional VNet integration with outbound traffic routed through the VNet. A Flex
+  app needs a subnet delegated to `Microsoft.App/environments`. Add `vnetSubnetId` to the
+  infrastructure parameter files, and state the subnet in `AGENTS.md`. Without it, Snowflake
+  rejects the run with "IP is not allowed". See ADR-001 §3.12.
 
 ## Common failure modes
 

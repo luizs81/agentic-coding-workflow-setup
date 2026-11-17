@@ -153,6 +153,17 @@ at the first.
 - **Secrets.** Check for connection strings, PATs, or keys hardcoded, committed, or
   appearing in logs. Check for a `SecretClient` used where a Key Vault reference in app
   settings would do.
+- **Snowflake auth.** Check for a Snowflake connection string that holds a password, or a
+  whole connection string kept as one secret. The standard is a PAT. Options must be
+  separate (`Account`, `User`, `Token`, and so on), and only `Token` is a secret. See
+  ADR-001 §3.4.
+- **VNet integration.** Flag it if the function calls Snowflake, or another IP-allowlisted
+  service, and the infrastructure files or `AGENTS.md` show no VNet subnet. A Flex app
+  needs a subnet delegated to `Microsoft.App/environments`, with outbound traffic routed
+  through the VNet. This is a blocker. Without it the first run fails with "IP is not
+  allowed". See ADR-001 §3.12.
+- **Vault scope.** Check that no dev app reads a production Key Vault. The team vaults use
+  access policies, so check for secret `get` and not a role assignment.
 - **Test coverage.** Check for new logic with no tests. Specifically: does the use case
   have a happy path plus each dependency-failure mode, and a test proving notification
   failure does not block the run? Do tests pass with no network and no Azure
